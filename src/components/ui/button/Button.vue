@@ -24,9 +24,8 @@ const props = withDefaults(defineProps<Props>(), {
     :data-size="size"
     :as="as"
     :as-child="asChild"
-    :class="cn(buttonVariants({ variant, size }), 'bg-primary', props.class)"
+    :class="cn(buttonVariants({ variant, size }),  props.class)"
   >
-  hiii
     <slot />
   </Primitive>
 </template>

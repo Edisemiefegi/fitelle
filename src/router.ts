@@ -11,6 +11,11 @@ const routes = [
     name: "Login",
     component: () => import("./views/auth/login.vue"),
   },
+  {
+    path: "/register",
+    name: "Register",
+    component: () => import("./views/auth/register.vue"),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),

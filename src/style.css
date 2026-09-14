@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -43,28 +42,53 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Atelier palette */
+  --color-ink: var(--ink);
+  --color-soft: var(--soft);
+  --color-line: var(--line);
+  --color-paper: var(--paper);
+  --color-pink: var(--pink);
+  --color-mint: var(--mint);
+  --color-butter: var(--butter);
+  --color-lilac: var(--lilac);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+
+  --ink: oklch(0.326 0.016 67.2);
+  --soft: oklch(0.61 0.022 69.8);
+  --line: oklch(0.922 0.018 78.2);
+  --paper: oklch(0.977 0.007 80.7);
+  --pink: oklch(0.93 0.023 11);
+  --mint: oklch(0.931 0.02 143);
+  --butter: oklch(0.948 0.03 85.6);
+  --lilac: oklch(0.93 0.018 303.4);
+  --danger: oklch(0.507 0.109 29.5);
+  --danger-soft: oklch(0.91 0.022 24.5);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: var(--ink);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --popover-foreground: var(--ink);
+  --primary: oklch(0.607 0.096 51.8);
+  --primary-foreground: oklch(0.995 0.004 80);
+  --secondary: oklch(0.955 0.012 79);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.955 0.012 79);
+  --muted-foreground: var(--soft);
+  --accent: oklch(0.607 0.096 51.8);
+  --accent-foreground: oklch(0.995 0.004 80);
+  --destructive: var(--danger);
+  --destructive-foreground: oklch(0.995 0.004 80);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: oklch(0.607 0.096 51.8);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -120,5 +144,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-16px) rotate(var(--r, 0deg));
   }
 }
