@@ -1,114 +1,110 @@
 <template>
-  <form class="flex h-full flex-col" @submit.prevent="handleSubmit">
-    <div class="flex-1 space-y-8 overflow-y-auto pr-1">
-      <section class="space-y-4">
-        <div>
-          <h3 class="font-display text-base font-semibold">Customer details</h3>
+  <Modal
+    :save-btn="isEditing ? 'Update customer' : 'Save customer'"
+    full-screen-mobile
+    :open="modalOpen"
+    @update:open="emit('update:modal-open', $event)"
+    @submit="handleSubmit"
+    :title="isEditing ? 'Edit customer' : 'Add customer'"
+    :description="
+      isEditing
+        ? 'Update your customer’s details.'
+        : 'Add a new customer to your client book.'
+    "
+    :is-loading="isLoading"
+  >
+    <form class="flex h-full flex-col" @submit.prevent="handleSubmit">
+      <div class="flex-1 space-y-8 overflow-y-auto pr-1">
+        <section class="space-y-4">
+          <SectionLabel
+            title="  Customer details"
+            description=" Basic information about your customer."
+          />
 
-          <p class="mt-1 text-xs text-muted-foreground">
-            Basic information about your customer.
-          </p>
-        </div>
+          <div class="space-y-4">
+            <Field required :error="errors.name?.[0]" label="Fullname">
+              <input
+                id="name"
+                v-model="form.name"
+                type="text"
+                placeholder="e.g. Amaka Okafor"
+                class="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
+              />
+            </Field>
 
-        <div class="space-y-4">
-          <Field required :error="errors.name?.[0]" label="Fullname">
-            <input
-              id="name"
-              v-model="form.name"
-              type="text"
-              placeholder="e.g. Amaka Okafor"
-              class="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-            />
-          </Field>
+            <Field required :error="errors.phone?.[0]" label="Phone number">
+              <input
+                id="phone"
+                v-model="form.phone"
+                type="tel"
+                placeholder="e.g. 0803 456 7890"
+                class="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
+              />
+            </Field>
 
-          <Field required :error="errors.phone?.[0]" label="Phone number">
-            <input
-              id="phone"
-              v-model="form.phone"
-              type="tel"
-              placeholder="e.g. 0803 456 7890"
-              class="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-            />
-          </Field>
+            <div class="space-y-2">
+              <label for="notes" class="text-sm font-medium">
+                Notes
+                <span class="font-normal text-muted-foreground">
+                  (optional)
+                </span>
+              </label>
 
-          <div class="space-y-2">
-            <label for="notes" class="text-sm font-medium">
-              Notes
-              <span class="font-normal text-muted-foreground">
-                (optional)
-              </span>
-            </label>
-
-            <textarea
-              id="notes"
-              v-model="form.notes"
-              rows="3"
-              placeholder="Anything worth remembering about this customer..."
-              class="w-full resize-none rounded-xl border border-border bg-background px-3 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-            />
-          </div>
-        </div>
-      </section>
-
-      <div class="h-px bg-border" />
-
-      <!-- Measurements -->
-      <section class="space-y-4">
-        <div
-          class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"
-        >
-          <div>
-            <h3 class="font-display text-base font-semibold">Measurements</h3>
-
-            <p class="mt-1 text-xs text-muted-foreground">
-              Add the customer's measurements for future orders.
-            </p>
-          </div>
-
-          <!-- Unit selector -->
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-muted-foreground"> Unit </span>
-
-            <div class="flex rounded-lg border border-border bg-muted/30 p-1">
-              <Button
-                v-for="option in units"
-                :key="option.value"
-                size="xs"
-                variant="ghost"
-                :class="
-                  form.unit === option.value
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground'
-                "
-                @click="form.unit = option.value"
-              >
-                {{ option.label }}
-              </Button>
+              <textarea
+                id="notes"
+                v-model="form.notes"
+                rows="3"
+                placeholder="Anything worth remembering about this customer..."
+                class="w-full resize-none rounded-xl border border-border bg-background px-3 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
+              />
             </div>
           </div>
-        </div>
+        </section>
 
-        <MeasurementFieldEditor
-          v-model="form.measurements"
-          v-model:custom-fields="form.customFields"
-          :unit="form.unit"
-        />
-      </section>
-    </div>
+        <div class="h-px bg-border" />
 
-    <!-- footer -->
-    <div
-      class="mt-6 flex shrink-0 flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end"
-    >
-      <Button type="button" variant="ghost" @click="handleCancel">
-        Cancel
-      </Button>
+        <!-- Measurements -->
+        <section v-if="showMeasurement" class="space-y-4">
+          <div
+            class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"
+          >
+            <SectionLabel
+              title=" Measurements"
+              description="    Add the customer's measurements for future orders."
+            />
 
-      <Button :loading="isLoading" type="submit" :disabled="isLoading">
-        Save customer
-      </Button>
-    </div>
-  </form>
+            <!-- Unit selector -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-muted-foreground"> Unit </span>
+
+              <div class="flex rounded-lg border border-border bg-muted/30 p-1">
+                <Button
+                  v-for="option in units"
+                  :key="option.value"
+                  size="xs"
+                  variant="ghost"
+                  :class="
+                    form.unit === option.value
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'text-muted-foreground'
+                  "
+                  @click="form.unit = option.value"
+                >
+                  {{ option.label }}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <MeasurementFieldEditor
+            v-model="form.measurements"
+            v-model:custom-fields="form.customFields"
+            :unit="form.unit"
+          />
+        </section>
+      </div>
+    </form>
+  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -120,15 +116,22 @@ import { customerSchema } from "@/schema/index.ts";
 import { useCustomerStore } from "@/stores/customer.ts";
 import MeasurementFieldEditor from "./MeasurementFieldEditor.vue";
 import { createEmptyMeasurements } from "@/constants/measurements.ts";
+import Modal from "../base/Modal.vue";
+import SectionLabel from "../orders/SectionLabel.vue";
 
 const { addNewCustomer, updateCustomer } = useCustomerStore();
 
-const props = defineProps<{
-  customer?: CustomerType | null;
-}>();
+const props = withDefaults(
+  defineProps<{
+    customer?: CustomerType | null;
+    modalOpen: boolean;
+    showMeasurement?: boolean;
+  }>(),
+  { showMeasurement: true },
+);
 
 const emit = defineEmits<{
-  cancel: [];
+  "update:modal-open": [value: boolean];
   saved: [id: string];
 }>();
 
@@ -185,8 +188,4 @@ const handleSubmit = async () => {
     isLoading.value = false;
   }
 };
-
-function handleCancel() {
-  emit("cancel");
-}
 </script>

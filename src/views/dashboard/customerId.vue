@@ -1,6 +1,11 @@
 <template>
   <div v-if="client" class="space-y-6">
-    <Header :title="client.name" text="Client Profile" :subtitle="client.phone" button="New order">
+    <Header
+      :title="client.name"
+      text="Client Profile"
+      :subtitle="client.phone"
+      button="New order"
+    >
       <Button size="sm" variant="outline">
         <MessageCircleCheck />
         WhatsApp
@@ -12,53 +17,64 @@
       </Button>
     </Header>
 
-    <Modal
-      v-model:open="editModalOpen"
-      title="Edit customer"
-      description="Update this customer's details."
-    >
-      <AddCustomer :customer="client" @cancel="editModalOpen = false" @saved="editModalOpen = false" />
-    </Modal>
+    <AddCustomer
+      :modal-open="editModalOpen"
+      @update:modal-open="editModalOpen = $event"
+      :customer="client"
+      @saved="editModalOpen = false"
+    />
 
-    <Card class="space-y-6"
-    title="Measurements"
-    :description="`Last updated ${ client.updatedAt ? formatDate(client.updatedAt) : EMPTY_TEXT }`"
+    <Card
+      class="space-y-6"
+      title="Measurements"
+      :description="`Last updated ${client.updatedAt ? formatDate(client.updatedAt) : EMPTY_TEXT}`"
     >
-
       <template #left>
-        <div class="flex size-9 items-center justify-center rounded-xl bg-primary/10">
-            <Ruler class="size-4 text-primary" />
-          </div>
-      </template>
-
-        <template #right>
-        <div class="flex items-start justify-between gap-4">
-     
-
-        <!-- View mode -->
-        <Button v-if="!editingMeasurements" size="sm" variant="ghost" @click="startEditingMeasurements">
-          <Edit class="size-4" />
-          Edit
-        </Button>
-
-        <!-- Edit mode -->
-        <div v-else class="flex items-center gap-2">
-          <Button size="sm" variant="ghost" :disabled="savingMeasurements" @click="cancelMeasurementEdit">
-            Cancel
-          </Button>
-
-          <Button size="sm" :disabled="savingMeasurements" @click="saveMeasurements">
-            {{ savingMeasurements ? "Saving..." : "Save" }}
-          </Button>
+        <div
+          class="flex size-9 items-center justify-center rounded-xl bg-primary/10"
+        >
+          <Ruler class="size-4 text-primary" />
         </div>
-      </div>
       </template>
 
-     
+      <template #right>
+        <div class="flex items-start justify-between gap-4">
+          <Button
+            v-if="!editingMeasurements"
+            size="sm"
+            variant="ghost"
+            @click="startEditingMeasurements"
+          >
+            <Edit class="size-4" />
+            Edit
+          </Button>
 
-      <!-- View mode content -->
+          <div v-else class="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              :disabled="savingMeasurements"
+              @click="cancelMeasurementEdit"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              size="sm"
+              :disabled="savingMeasurements"
+              @click="saveMeasurements"
+            >
+              {{ savingMeasurements ? "Saving..." : "Save" }}
+            </Button>
+          </div>
+        </div>
+      </template>
+
       <template v-if="!editingMeasurements">
-        <div v-if="hasMeasurements" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div
+          v-if="hasMeasurements"
+          class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+        >
           <div
             v-for="field in visibleFields"
             :key="field.key"
@@ -66,7 +82,9 @@
           >
             <div class="mb-3 flex items-center justify-between">
               <p class="text-sm font-medium">{{ field.label }}</p>
-              <span class="text-[10px] text-muted-foreground">{{ client.unit }}</span>
+              <span class="text-[10px] text-muted-foreground">{{
+                client.unit
+              }}</span>
             </div>
 
             <p class="text-xl font-semibold">
@@ -82,17 +100,21 @@
         </div>
 
         <!-- Empty state -->
-        <div v-else class="rounded-xl border border-dashed border-border px-6 py-10 text-center">
+        <div
+          v-else
+          class="rounded-xl border border-dashed border-border px-6 py-10 text-center"
+        >
           <Ruler class="mx-auto mb-3 size-8 text-muted-foreground" />
           <p class="text-sm font-medium">No measurements yet</p>
           <p class="mt-1 text-xs text-muted-foreground">
             Add this client's measurements to make future orders easier.
           </p>
-          <Button class="mt-4" size="sm" @click="startEditingMeasurements">Add measurements</Button>
+          <Button class="mt-4" size="sm" @click="startEditingMeasurements"
+            >Add measurements</Button
+          >
         </div>
       </template>
 
-      <!-- Edit mode: shared field editor handles per-field add/delete -->
       <MeasurementFieldEditor
         v-else
         v-model="editableMeasurements"
@@ -104,7 +126,7 @@
     <Card class="space-y-4">
       <div>
         <p class="text-xs text-muted-foreground">
-          Total orders <span class="font-semibold text-sm">{{  0 }}</span>
+          Total orders <span class="font-semibold text-sm">{{ 0 }}</span>
         </p>
         <h2 class="font-display text-lg font-semibold">Notes</h2>
         <p class="text-xs text-muted-foreground">
@@ -120,14 +142,21 @@
       />
 
       <div class="flex justify-end">
-        <Button size="sm" variant="outline" :disabled="savingNotes" @click="saveNotes">
+        <Button
+          size="sm"
+          variant="outline"
+          :disabled="savingNotes"
+          @click="saveNotes"
+        >
           {{ savingNotes ? "Saving..." : "Save note" }}
         </Button>
       </div>
     </Card>
   </div>
 
-  <div v-else class="py-20 text-center text-sm text-muted-foreground">Loading client...</div>
+  <div v-else class="py-20 text-center text-sm text-muted-foreground">
+    Loading client...
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -137,7 +166,6 @@ import { Edit, MessageCircleCheck, Pencil, Ruler } from "@lucide/vue";
 
 import Card from "@/components/base/Card.vue";
 import Header from "@/components/base/Header.vue";
-import Modal from "@/components/base/Modal.vue";
 import Button from "@/components/ui/button/Button.vue";
 import AddCustomer from "@/components/customer/AddCustomer.vue";
 import MeasurementFieldEditor from "@/components/customer/MeasurementFieldEditor.vue";
@@ -149,7 +177,9 @@ import { EMPTY_TEXT } from "@/constants";
 const route = useRoute();
 const store = useCustomerStore();
 
-const client = ref<CustomerType | null>(store.getCustomerById(route.params.id as string));
+const client = ref<CustomerType | null>(
+  store.getCustomerById(route.params.id as string),
+);
 
 onMounted(async () => {
   if (!client.value) {
@@ -174,17 +204,21 @@ watch(
   { immediate: true },
 );
 
-const visibleFields = computed(() => (client.value ? resolveMeasurementFields(client.value) : []));
+const visibleFields = computed(() =>
+  client.value ? resolveMeasurementFields(client.value) : [],
+);
 
 const hasMeasurements = computed(() =>
-  visibleFields.value.some((field) => client.value?.measurements[field.key] != null),
+  visibleFields.value.some(
+    (field) => client.value?.measurements[field.key] != null,
+  ),
 );
 
 function startEditingMeasurements() {
   if (!client.value) return;
 
-  console.log(client.value, 'sjsj');
-  
+  console.log(client.value, "sjsj");
+
   editableMeasurements.value = { ...client.value.measurements };
   editableCustomFields.value = [...client.value.customFields];
   editingMeasurements.value = true;

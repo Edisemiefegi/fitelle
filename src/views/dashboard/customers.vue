@@ -8,18 +8,12 @@
       text="People behind the pieces"
     />
 
-    <Modal
-      full-screen-mobile
-      v-model:open="modalOpen"
-      title="Add customer"
-      description="Add a new customer to your client book."
-    >
-      <AddCustomer
-        :customer="editingCustomer"
-        @cancel="closeModal"
-        @saved="closeModal"
-      />
-    </Modal>
+    <AddCustomer
+      :modal-open="modalOpen"
+      @update:modal-open="modalOpen = $event"
+      :customer="editingCustomer"
+      @saved="closeModal"
+    />
 
     <div class="flex justify-between">
       <Search
@@ -61,7 +55,7 @@
       </template>
 
       <template #cell-actions="{ row }">
-        <PopOver content-class="w-fit">
+        <PopOver content-class="w-fit p-1.5">
           <template #trigger>
             <Button variant="ghost">
               <Ellipsis class="size-4" />
@@ -95,7 +89,6 @@ import PopOver from "@/components/base/PopOver.vue";
 import Button from "@/components/ui/button/Button.vue";
 import { useRouter } from "vue-router";
 import AddCustomer from "@/components/customer/AddCustomer.vue";
-import Modal from "@/components/base/Modal.vue";
 import { useCustomerStore } from "@/stores/customer";
 import type { CustomerType } from "@/types/customer";
 

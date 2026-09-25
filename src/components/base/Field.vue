@@ -14,7 +14,7 @@ defineProps<Props>()
 
 <template>
   <div class="space-y-2" :class="class">
-    <label v-if="label" class="text-sm font-medium">
+    <label v-if="label" class="text-xs font-medium">
       {{ label }}
 
       <span v-if="required" class="text-destructive">

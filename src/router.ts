@@ -15,15 +15,19 @@ const routes = [
     name: "Login",
     path: "/login",
     component: () => import("./views/auth/login.vue"),
-    meta: {
-      guestOnly: true,
-    },
+   
   },
   {
     path: "/register",
     name: "Register",
     component: () => import("./views/auth/register.vue"),
   },
+
+   {
+        path: "/track/:slug",
+        name: "Slug",
+        component: () => import("@/views/dashboard/orders/[slug].vue"),
+      },
 
   {
     path: "",
@@ -40,14 +44,20 @@ const routes = [
       {
         path: "/orders",
         name: "Orders",
-        component: () => import("@/views/dashboard/orders.vue"),
+        component: () => import("@/views/dashboard/orders/index.vue"),
       },
+      {
+        path: "/orders/:id",
+        name: "OrderId",
+        component: () => import("@/views/dashboard/orders/[id].vue"),
+      },
+      
       {
         path: "/customers",
         name: "Customers",
         component: () => import("@/views/dashboard/customers.vue"),
       },
-       {
+      {
         path: "/customers/:id",
         name: "CustomerId",
         component: () => import("@/views/dashboard/customerId.vue"),

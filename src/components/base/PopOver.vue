@@ -6,8 +6,9 @@ import {
 } from "@/components/ui/popover";
 import type { HTMLAttributes } from "vue";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
+    open?: boolean;
     align?: "start" | "center" | "end";
     side?: "top" | "right" | "bottom" | "left";
     contentClass?: HTMLAttributes["class"];
@@ -17,10 +18,17 @@ withDefaults(
     side: "bottom",
   },
 );
+
+const emit = defineEmits<{
+  "update:open": [value: boolean];
+}>();
 </script>
 
 <template>
-  <Popover >
+  <Popover
+    :open="props.open"
+    @update:open="emit('update:open', $event)"
+  >
     <PopoverTrigger as-child>
       <slot name="trigger" />
     </PopoverTrigger>
@@ -28,7 +36,7 @@ withDefaults(
     <PopoverContent
       :align="align"
       :side="side"
-      :class="['w-44 rounded-xl p-1.5', contentClass]"
+      :class="['rounded-xl', contentClass]"
     >
       <slot />
     </PopoverContent>

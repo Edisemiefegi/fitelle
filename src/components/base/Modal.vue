@@ -34,6 +34,17 @@
       <div class="min-h-0 flex-1 overflow-y-auto px-6">
         <slot />
       </div>
+
+      <DialogFooter show-close-button>
+        <Button
+          class=""
+          :loading="isLoading"
+          :disabled="isLoading"
+          @click="emit('submit')"
+        >
+          {{ saveBtn }}</Button
+        >
+      </DialogFooter>
     </DialogContent>
   </Dialog>
 </template>
@@ -41,7 +52,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
 import { X } from "@lucide/vue";
-
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +61,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import DialogFooter from "../ui/dialog/DialogFooter.vue";
 
 interface Props {
   open: boolean;
@@ -58,6 +70,8 @@ interface Props {
   fullScreen?: boolean;
   fullScreenMobile?: boolean;
   contentClass?: HTMLAttributes["class"];
+  isLoading?: boolean;
+  saveBtn?: string;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -69,5 +83,6 @@ withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   "update:open": [value: boolean];
+  submit: [];
 }>();
 </script>
