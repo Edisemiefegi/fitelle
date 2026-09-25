@@ -46,7 +46,6 @@
 
 <script setup lang="ts">
 import Field from "../base/Field.vue";
-import type { CustomerType } from "@/types/customer.ts";
 import Input from "../ui/input/Input.vue";
 
 defineProps<{

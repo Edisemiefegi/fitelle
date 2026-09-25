@@ -270,7 +270,7 @@
             variant="outline"
             size="sm"
             class="shrink-0"
-            @click="() => window.open(trackingUrl, '_blank')"
+            @click="openTrackingLink"
           >
             Preview
             <Link class="size-4" />
@@ -319,7 +319,6 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
-  Camera,
   Check,
   Copy,
   Link,
@@ -390,6 +389,10 @@ const trackingUrl = computed(() =>
     ? `${window.location.origin}/track/${order.value.trackingSlug}`
     : "",
 );
+
+function openTrackingLink() {
+  window.open(trackingUrl.value, "_blank");
+}
 
 async function copyLink() {
   await navigator.clipboard.writeText(trackingUrl.value);

@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="T extends string">
+import type { AcceptableValue } from "reka-ui";
 import { Search, X } from "@lucide/vue";
 import { ref, computed, watch, onBeforeUnmount } from "vue";
 import {
@@ -15,7 +16,7 @@ interface SelectOption<T extends string> {
 }
 
 interface Props {
-  isSearch?: boolean
+  isSearch?: boolean;
   modelValue?: T;
   options: SelectOption<T>[];
   label?: string;
@@ -64,10 +65,14 @@ const filteredOptions = computed(() => {
   );
 });
 
-function handleValueChange(value: string) {
+function handleValueChange(value: AcceptableValue) {
+  if (typeof value !== "string") {
+    emit("update:modelValue", undefined);
+    return;
+  }
+
   emit("update:modelValue", value as T);
 }
-
 function clearSearch() {
   search.value = "";
   debouncedSearch.value = "";
