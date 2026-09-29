@@ -1,6 +1,7 @@
 <template>
   <main v-if="order" class="space-y-5">
     <Header
+      back
       :title="order.garmentType"
       :text="`${order.id} | ${order.status}`"
       :subtitle="order.customerName"

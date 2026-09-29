@@ -1,6 +1,14 @@
 import { defineStore } from "pinia";
 import { toast } from "vue-sonner";
-import { collection, addDoc, db, doc, updateDoc, deleteDoc, getDocs } from "@/service/firebase";
+import {
+  collection,
+  addDoc,
+  db,
+  doc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+} from "@/service/firebase";
 import type { OrderType, ProductionStatus, OrderImage } from "@/types/order";
 import type { OrderSchemaType } from "@/schema/order";
 import { derivePaymentStatus } from "@/constants/orders";
@@ -19,7 +27,13 @@ export const useOrderStore = defineStore("order", {
       (id: string): OrderType | null =>
         state.orders.find((o) => o.id === id) ?? null,
 
+    getOrdersByCustomerId:
+      (state) =>
+      (customerId: string): OrderType[] =>
+        state.orders.filter((order) => order.customerId === customerId),
+
     totalOrders: (state) => state.orders.length,
+    
   },
 
   actions: {
@@ -29,7 +43,10 @@ export const useOrderStore = defineStore("order", {
       try {
         const snapshot = await getDocs(collection(db, "orders"));
         this.orders = snapshot.docs
-          .map((docSnap: any) => ({ ...docSnap.data(), id: docSnap.id }) as OrderType)
+          .map(
+            (docSnap: any) =>
+              ({ ...docSnap.data(), id: docSnap.id }) as OrderType,
+          )
           .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
       } catch (error) {
         this.error = "Failed to load orders.";
@@ -45,7 +62,10 @@ export const useOrderStore = defineStore("order", {
      * form via useImageUpload before this is called, so a failed order write
      * never orphans an in-flight upload).
      */
-    async addOrder(order: OrderSchemaType, referenceImages: OrderImage[] = []): Promise<string> {
+    async addOrder(
+      order: OrderSchemaType,
+      referenceImages: OrderImage[] = [],
+    ): Promise<string> {
       const now = new Date().toISOString();
       const paid = order.deposit ?? 0;
       const balance = order.total - paid;
@@ -67,7 +87,16 @@ export const useOrderStore = defineStore("order", {
         statusHistory: [{ status: order.status, at: now }],
         total: order.total,
         payments:
-          paid > 0 ? [{ id: generateId("pay"), amount: paid, note: "Initial deposit", recordedAt: now }] : [],
+          paid > 0
+            ? [
+                {
+                  id: generateId("pay"),
+                  amount: paid,
+                  note: "Initial deposit",
+                  recordedAt: now,
+                },
+              ]
+            : [],
         paid,
         balance,
         paymentStatus: derivePaymentStatus(order.total, paid),
@@ -84,7 +113,9 @@ export const useOrderStore = defineStore("order", {
         return docRef.id;
       } catch (error) {
         console.error("addOrder error:", error);
-        toast.error("Couldn't create the order. Check your connection and try again.");
+        toast.error(
+          "Couldn't create the order. Check your connection and try again.",
+        );
         throw error;
       }
     },
@@ -102,7 +133,9 @@ export const useOrderStore = defineStore("order", {
         toast.success("Order updated");
       } catch (error) {
         console.error("updateOrder error:", error);
-        toast.error("Couldn't save changes. Check your connection and try again.");
+        toast.error(
+          "Couldn't save changes. Check your connection and try again.",
+        );
         throw error;
       }
     },
@@ -148,7 +181,10 @@ export const useOrderStore = defineStore("order", {
       }
 
       const now = new Date().toISOString();
-      const payments = [...order.payments, { id: generateId("pay"), amount, note, recordedAt: now }];
+      const payments = [
+        ...order.payments,
+        { id: generateId("pay"), amount, note, recordedAt: now },
+      ];
       const paid = order.paid + amount;
       const balance = order.total - paid;
 

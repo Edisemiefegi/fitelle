@@ -118,7 +118,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="grid grid-cols-3 gap-1.5">
+        <div @click.stop class="grid grid-cols-3 gap-1.5">
           <Button size="sm" variant="secondary" @click="emit('view', order)">
             <Eye class="size-3" />
             View

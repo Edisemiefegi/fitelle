@@ -55,12 +55,17 @@ const routes = [
       {
         path: "/customers",
         name: "Customers",
-        component: () => import("@/views/dashboard/customers.vue"),
+        component: () => import("@/views/dashboard/customers/index.vue"),
       },
       {
         path: "/customers/:id",
         name: "CustomerId",
-        component: () => import("@/views/dashboard/customerId.vue"),
+        component: () => import("@/views/dashboard/customers/[id].vue"),
+      },
+        {
+        path: "/settings",
+        name: "Settings",
+        component: () => import("@/views/dashboard/settings.vue"),
       },
       {
         path: "/portfolio",

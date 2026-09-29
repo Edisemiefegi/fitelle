@@ -6,9 +6,8 @@ import {
 } from "@/components/ui/popover";
 import type { HTMLAttributes } from "vue";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
-    open?: boolean;
     align?: "start" | "center" | "end";
     side?: "top" | "right" | "bottom" | "left";
     contentClass?: HTMLAttributes["class"];
@@ -19,16 +18,12 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits<{
-  "update:open": [value: boolean];
-}>();
+
+const open = defineModel<boolean>("open", { default: false });
 </script>
 
 <template>
-  <Popover
-    :open="props.open"
-    @update:open="emit('update:open', $event)"
-  >
+  <Popover v-model:open="open">
     <PopoverTrigger as-child>
       <slot name="trigger" />
     </PopoverTrigger>

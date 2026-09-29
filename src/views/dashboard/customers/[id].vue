@@ -5,6 +5,7 @@
       text="Client Profile"
       :subtitle="client.phone"
       button="New order"
+      back
     >
       <Button size="sm" variant="outline">
         <MessageCircleCheck />
@@ -17,7 +18,7 @@
       </Button>
     </Header>
 
-    <AddCustomer
+    <CustomerFormModal
       :modal-open="editModalOpen"
       @update:modal-open="editModalOpen = $event"
       :customer="client"
@@ -152,6 +153,8 @@
         </Button>
       </div>
     </Card>
+
+    <CustomerOders v-if="client" :customer-id="client.id" />
   </div>
 
   <div v-else class="py-20 text-center text-sm text-muted-foreground">
@@ -167,12 +170,13 @@ import { Edit, MessageCircleCheck, Pencil, Ruler } from "@lucide/vue";
 import Card from "@/components/base/Card.vue";
 import Header from "@/components/base/Header.vue";
 import Button from "@/components/ui/button/Button.vue";
-import AddCustomer from "@/components/customer/AddCustomer.vue";
+import CustomerFormModal from "@/components/customer/CustomerFormModal.vue";
 import MeasurementFieldEditor from "@/components/customer/MeasurementFieldEditor.vue";
 import { useCustomerStore } from "@/stores/customer";
 import { resolveMeasurementFields } from "@/constants/measurements";
 import type { CustomerType, MeasurementField } from "@/types/customer";
 import { EMPTY_TEXT } from "@/constants";
+import CustomerOders from "@/components/customer/customerOders.vue";
 
 const route = useRoute();
 const store = useCustomerStore();

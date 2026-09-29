@@ -8,7 +8,7 @@
       text="People behind the pieces"
     />
 
-    <AddCustomer
+    <CustomerFormModal
       :modal-open="modalOpen"
       @update:modal-open="modalOpen = $event"
       :customer="editingCustomer"
@@ -33,6 +33,7 @@
       :rows="filteredCustomers"
       :loading="isLoading"
       empty-message="No customers found."
+      @row-click="goToCustomer"
     >
       <template #cell-name="{ row }">
         <div>
@@ -44,7 +45,7 @@
 
       <template #cell-orders="{ row }">
         <span class="font-medium">
-          {{ row.orders }}
+          {{ customerOrderCount(row.id) }}
         </span>
       </template>
 
@@ -55,32 +56,34 @@
       </template>
 
       <template #cell-actions="{ row }">
-        <PopOver content-class="w-fit p-1.5">
-          <template #trigger>
-            <Button variant="ghost">
-              <Ellipsis class="size-4" />
-            </Button>
-          </template>
+        <div @click.stop>
+          <PopOver content-class="w-fit p-1.5">
+            <template #trigger>
+              <Button variant="ghost" type="button">
+                <Ellipsis class="size-4" />
+              </Button>
+            </template>
 
-          <div v-for="btn in customerActions">
-            <Button
-              size="sm"
-              class="text-[10px] hover:bg-muted w-full justify-start"
-              variant="ghost"
-              @click.stop="btn.onClick(row)"
-            >
-              <component :is="btn.icon" class="size-2.5" />
-              {{ btn.label }}
-            </Button>
-          </div>
-        </PopOver>
+            <div v-for="btn in customerActions" :key="btn.label">
+              <Button
+                size="sm"
+                class="text-[10px] hover:bg-muted w-full justify-start"
+                variant="ghost"
+                @click="btn.onClick(row)"
+              >
+                <component :is="btn.icon" class="size-2.5" />
+                {{ btn.label }}
+              </Button>
+            </div>
+          </PopOver>
+        </div>
       </template>
     </Table>
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Header from "@/components/base/Header.vue";
 import Search from "@/components/base/Search.vue";
 import { Eye, Trash2, Ellipsis, Users, MessageCircle } from "@lucide/vue";
@@ -88,22 +91,39 @@ import Table from "@/components/base/Table.vue";
 import PopOver from "@/components/base/PopOver.vue";
 import Button from "@/components/ui/button/Button.vue";
 import { useRouter } from "vue-router";
-import AddCustomer from "@/components/customer/AddCustomer.vue";
 import { useCustomerStore } from "@/stores/customer";
 import type { CustomerType } from "@/types/customer";
+import { toWhatsAppLink } from "@/lib";
+import CustomerFormModal from "@/components/customer/CustomerFormModal.vue";
+import { useDebouncedRef } from "@/composables/useDebounceRef";
+import { useOrderStore } from "@/stores/order";
 
 const search = ref("");
+const debouncedQuery = useDebouncedRef("", 300);
 const modalOpen = ref(false);
+
 const editingCustomer = ref<CustomerType | null>(null);
 const router = useRouter();
 
+watch(search, (value) => {
+  debouncedQuery.value = value;
+});
+
+function goToCustomer(customer: CustomerType) {
+  router.push(`/customers/${customer.id}`);
+}
+
 const { fetchCustomers, isLoading, searchCustomers, deleteCustomer } =
   useCustomerStore();
+const orderStore = useOrderStore();
 
-const filteredCustomers = computed(() => searchCustomers(search.value));
+const customerOrderCount = (customerId: string) => {
+  return orderStore.getOrdersByCustomerId(customerId).length;
+};
+const filteredCustomers = computed(() => searchCustomers(debouncedQuery.value));
 
-onMounted(() => {
-  fetchCustomers();
+onMounted(async () => {
+  await Promise.all([fetchCustomers(), orderStore.fetchOrders()]);
 });
 
 function openAddModal() {
@@ -129,10 +149,7 @@ const customerActions = [
     label: "Whatsapp",
     icon: MessageCircle,
     onClick: (customer: CustomerType) => {
-      window.open(
-        `https://wa.me/${customer.phone.replace(/\D/g, "")}`,
-        "_blank",
-      );
+      window.open(toWhatsAppLink(customer.phone), "_blank");
     },
   },
   {

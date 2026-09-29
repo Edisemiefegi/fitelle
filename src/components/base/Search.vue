@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Search, X } from "@lucide/vue";
+import Input from "../ui/input/Input.vue";
 
 interface Props {
   modelValue: string;
@@ -25,11 +26,11 @@ function clearSearch() {
       class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
     />
 
-    <input
+    <Input
       :value="modelValue"
-      type="search"
+      type="text"
       :placeholder="placeholder"
-      class="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-9 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+      class="bg-background pl-9"
       @input="
         emit('update:modelValue', ($event.target as HTMLInputElement).value)
       "

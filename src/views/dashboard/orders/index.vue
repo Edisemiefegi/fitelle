@@ -46,7 +46,11 @@
           @view="handleView"
           @whatsapp="handleWhatsApp"
           @stage="handleStage"
+           @click="handleView(order)"
         />
+        <div>
+          
+        </div>
 
         <div
           v-if="!filteredOrders.length"

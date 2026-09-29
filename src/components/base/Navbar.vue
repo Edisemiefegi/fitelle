@@ -6,9 +6,12 @@
       <Tooltip v-for="link in navLinks" :key="link.name" :text="link.name">
         <RouterLink
           :to="link.path"
-          exact-active-class="bg-black text-white"
-          active-class="bg-black text-white hover:bg-black"
-          class="group relative flex flex-col items-center justify-center gap-0.5 rounded-full p-2 text-gray-500 transition-all duration-200 hover:bg-background"
+          :class="[
+            'group relative flex flex-col items-center justify-center gap-0.5 rounded-full p-2 transition-all duration-200',
+            isActive(link.path)
+              ? 'bg-black text-white'
+              : 'text-gray-500 hover:bg-background',
+          ]"
         >
           <component
             :is="link.icon"
@@ -21,35 +24,22 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
+import { RouterLink, useRoute } from "vue-router";
 import { Home, Images, Settings, Shirt, Users } from "@lucide/vue";
 import Tooltip from "./Tooltip.vue";
 
+const route = useRoute();
+
 const navLinks = [
-  {
-    name: "Overview",
-    path: "/overview",
-    icon: Home,
-  },
-  {
-    name: "Orders",
-    path: "/orders",
-    icon: Shirt,
-  },
-  {
-    name: "Customers",
-    path: "/customers",
-    icon: Users,
-  },
-  {
-    name: "Portfolio",
-    path: "/portfolio",
-    icon: Images,
-  },
-  {
-    name: "Settings",
-    path: "/settings",
-    icon: Settings,
-  },
+  { name: "Overview", path: "/overview", icon: Home },
+  { name: "Orders", path: "/orders", icon: Shirt },
+  { name: "Customers", path: "/customers", icon: Users },
+  { name: "Portfolio", path: "/portfolio", icon: Images },
+  { name: "Settings", path: "/settings", icon: Settings },
 ];
+
+
+function isActive(path: string) {
+  return route.path === path || route.path.startsWith(`${path}/`);
+}
 </script>

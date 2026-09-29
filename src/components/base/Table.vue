@@ -7,6 +7,10 @@ export interface TableColumn {
 }
 
 
+const emit = defineEmits<{
+  "row-click": [row: any];
+}>();
+
 
 defineProps<{
   columns: TableColumn[];
@@ -65,11 +69,13 @@ defineProps<{
         <!-- Rows -->
         <tbody v-else>
           <tr
+          @click="emit('row-click', row)"
             v-for="row in rows"
             :key="row.id"
             class="border-b border-border last:border-0 transition-colors hover:bg-muted/30"
           >
             <td
+            
               v-for="column in columns"
               :key="column.key"
               :class="['px-2 py-3', column.class]"
@@ -90,4 +96,3 @@ defineProps<{
     </div>
   </div>
 </template>
-```
