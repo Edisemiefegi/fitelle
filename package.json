@@ -19,6 +19,8 @@
     "clsx": "^2.1.1",
     "cn": "^0.2.6",
     "firebase": "^12.18.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "pinia": "^4.0.3",
     "pinia-plugin-persistedstate": "^4.7.1",
     "reka-ui": "^2.10.5",

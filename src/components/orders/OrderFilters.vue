@@ -1,7 +1,12 @@
 <template>
   <div class="flex gap-2 justify-between">
-    <div class="grid md:grid-cols-4 grid-cols-3  gap-2">
-      <Select v-model="filters.status" :options="ORDER_STATUS_OPTIONS" placeholder="Order status" class="w-full sm:w-40" />
+    <div class="grid md:grid-cols-4 grid-cols-3 gap-2">
+      <Select
+        v-model="filters.status"
+        :options="ORDER_STATUS_OPTIONS"
+        placeholder="Order status"
+        class="w-full sm:w-40"
+      />
 
       <Select
         v-model="filters.paymentStatus"
@@ -28,7 +33,7 @@
     </div>
 
     <div class="flex shrink-0 gap-1">
-      <Button variant="outline" size="sm">
+      <Button variant="outline" size="sm" @click="emit('export')">
         <Download class="size-4" />
         <span class="hidden sm:inline">Export</span>
       </Button>
@@ -41,7 +46,10 @@ import { computed } from "vue";
 import { Download, X } from "@lucide/vue";
 import Select from "@/components/base/Select.vue";
 import Button from "@/components/ui/button/Button.vue";
-import { ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from "@/constants/orders";
+import {
+  ORDER_STATUS_OPTIONS,
+  PAYMENT_STATUS_OPTIONS,
+} from "@/constants/orders";
 import type { OrderFiltersState } from "@/constants/orders";
 
 const props = defineProps<{
@@ -50,6 +58,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   reset: [];
+  export: [];
 }>();
 
 const isActive = computed(

@@ -15,7 +15,6 @@ const routes = [
     name: "Login",
     path: "/login",
     component: () => import("./views/auth/login.vue"),
-   
   },
   {
     path: "/register",
@@ -23,11 +22,11 @@ const routes = [
     component: () => import("./views/auth/signup.vue"),
   },
 
-   {
-        path: "/track/:slug",
-        name: "Slug",
-        component: () => import("@/views/dashboard/orders/[slug].vue"),
-      },
+  {
+    path: "/track/:slug",
+    name: "Slug",
+    component: () => import("@/views/dashboard/orders/[slug].vue"),
+  },
 
   {
     path: "",
@@ -51,7 +50,7 @@ const routes = [
         name: "OrderId",
         component: () => import("@/views/dashboard/orders/[id].vue"),
       },
-      
+
       {
         path: "/customers",
         name: "Customers",
@@ -62,7 +61,7 @@ const routes = [
         name: "CustomerId",
         component: () => import("@/views/dashboard/customers/[id].vue"),
       },
-        {
+      {
         path: "/settings",
         name: "Settings",
         component: () => import("@/views/dashboard/settings.vue"),
@@ -70,9 +69,20 @@ const routes = [
       {
         path: "/portfolio",
         name: "Portfolio",
-        component: () => import("@/views/dashboard/portfolio.vue"),
+        component: () => import("@/views/dashboard/portfolio/index.vue"),
       },
     ],
+  },
+
+  {
+    path: "/portfolio/:slug/:workId",
+    name: "PublicPortfolio",
+    component: () => import("@/views/dashboard/portfolio/[workId].vue"),
+  },
+  {
+    path: "/portfolio/:slug",
+    name: "PortfolioSlug",
+    component: () => import("@/views/dashboard/portfolio/[slug].vue"),
   },
 
   {

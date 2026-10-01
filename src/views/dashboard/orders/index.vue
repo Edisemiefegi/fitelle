@@ -17,7 +17,7 @@
 
     <Search v-model="searchInput" placeholder="Search orders..." />
 
-    <OrderFilters :filters="filters" @reset="resetFilters" />
+    <OrderFilters :filters="filters" @reset="resetFilters" @export="handleDownloadPdf"   />
 
     <!-- Loading -->
     <div v-if="orderStore.isLoading && !orderStore.orders.length" class="space-y-2">
@@ -93,9 +93,13 @@ import { defaultOrderFilters } from "@/constants/orders";
 import { toWhatsAppLink } from "@/lib";
 import type { OrderType } from "@/types/order";
 import { useDebouncedRef } from "@/composables/useDebounceRef";
+import { toast } from "vue-sonner";
+import {  exportOrdersToPdf,} from "@/lib/pdf";
+import { useAuthStore } from "@/stores/auth";
 
 const router = useRouter();
 const orderStore = useOrderStore();
+const authStore = useAuthStore();
 
 const PAGE_SIZE = 10;
 const visibleCount = ref(PAGE_SIZE);
@@ -160,6 +164,19 @@ function handleStage(order: OrderType) {
   statusOrder.value = order;
   statusSheetOpen.value = true;
 }
+function businessInfo() {
+  return {
+    businessName: authStore.currentUser?.brandName,
+    phone: authStore.currentUser?.phoneNumber,
+    location: authStore.currentUser?.location,
+  };
+}
+function handleDownloadPdf() {
+if (!filteredOrders.value.length) {
+    toast.error("Nothing to export — adjust your filters first.");
+    return;
+  }
+  exportOrdersToPdf(filteredOrders.value, businessInfo());}
 
 onMounted(() => {
   orderStore.fetchOrders().catch(() => {});

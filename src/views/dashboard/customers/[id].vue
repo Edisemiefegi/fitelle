@@ -6,6 +6,7 @@
       :subtitle="client.phone"
       button="New order"
       back
+      @button-click="orderModalOpen = true"
     >
       <Button size="sm" variant="outline">
         <MessageCircleCheck />
@@ -17,6 +18,12 @@
         Edit client
       </Button>
     </Header>
+
+    <OrderFormModal
+      key="new"
+      :open="orderModalOpen"
+      @update:open="orderModalOpen = $event"
+    />
 
     <CustomerFormModal
       :modal-open="editModalOpen"
@@ -177,6 +184,7 @@ import { resolveMeasurementFields } from "@/constants/measurements";
 import type { CustomerType, MeasurementField } from "@/types/customer";
 import { EMPTY_TEXT } from "@/constants";
 import CustomerOders from "@/components/customer/customerOders.vue";
+import OrderFormModal from "@/components/orders/OrderFormModal.vue";
 
 const route = useRoute();
 const store = useCustomerStore();
@@ -190,6 +198,8 @@ onMounted(async () => {
     client.value = await store.fetchCustomer(route.params.id as string);
   }
 });
+
+const orderModalOpen = ref(false);
 
 const editModalOpen = ref(false);
 const editingMeasurements = ref(false);

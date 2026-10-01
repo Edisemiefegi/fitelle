@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { uploadImageFile, deleteImageFile } from "@/service/appwrite";
 import { generateId } from "@/lib";
 import type { OrderImage } from "@/types/order";
+import type { MediaFile } from "@/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -92,7 +93,32 @@ export function useImageUpload(initial: OrderImage[] = []) {
       }));
   }
 
+  function move(localId: string, direction: "up" | "down") {
+    const index = items.value.findIndex((i) => i.localId === localId);
+    const swapWith = direction === "up" ? index - 1 : index + 1;
+    if (index === -1 || swapWith < 0 || swapWith >= items.value.length) return;
+ 
+    const next = [...items.value];
+    [next[index], next[swapWith]] = [next[swapWith], next[index]];
+    items.value = next;
+  }
+ 
+  function toFiles(): MediaFile[] {
+    return items.value
+      .filter((i) => i.status === "done" && i.fileId && i.url)
+      .map((i) => {
+        const file: MediaFile = {
+          fileId: i.fileId!,
+          url: i.url!,
+          uploadedAt: i.uploadedAt ?? new Date().toISOString(),
+        };
+        // Only set when explicitly toggled — writing `undefined` to Firestore throws.
+        if (typeof i.visibleToCustomer === "boolean") file.visibleToCustomer = i.visibleToCustomer;
+        return file;
+      });
+  }
+
   const isUploading = () => items.value.some((i) => i.status === "uploading");
 
-  return { items, addFiles, remove, toOrderImages, isUploading };
+  return { items, addFiles, remove,move, toFiles, toOrderImages,  isUploading };
 }

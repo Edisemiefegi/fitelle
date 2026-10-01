@@ -1,5 +1,5 @@
 <template>
-  <main class="space-y-6">
+  <main v-if="authStore.currentUser" class="space-y-6">
     <Header
       title="Settings"
       text="Business profile"
@@ -7,58 +7,31 @@
     />
 
     <!-- Business Profile -->
-    <Card
-      title="Business profile"
-      description="Basic information about your fashion business."
-    >
-      <form
-        class="space-y-5"
-        @submit.prevent="saveSettings"
-      >
+    <Card title="Business profile" description="Basic information about your fashion business.">
+      <form class="space-y-5" @submit.prevent="handleSave">
         <div class="grid gap-5 md:grid-cols-2">
           <!-- Business name -->
           <div class="space-y-2">
-            <label class="text-sm font-medium">
-              Business name
-            </label>
-
-            <Input
-              v-model="form.businessName"
-              placeholder="e.g. Didi Stitches"
-            />
+            <label class="text-sm font-medium">Business name</label>
+            <Input v-model="form.brandName" placeholder="e.g. Didi Stitches" />
           </div>
 
           <!-- Phone -->
           <div class="space-y-2">
-            <label class="text-sm font-medium">
-              Phone number
-            </label>
-
-            <Input
-              v-model="form.phone"
-              placeholder="e.g. 08012345678"
-            />
+            <label class="text-sm font-medium">Phone number</label>
+            <Input v-model="form.phoneNumber" placeholder="e.g. 08012345678" />
           </div>
         </div>
 
         <!-- Location -->
         <div class="space-y-2">
-          <label class="text-sm font-medium">
-            Location
-          </label>
-
-          <Input
-            v-model="form.location"
-            placeholder="e.g. Abuja, Nigeria"
-          />
+          <label class="text-sm font-medium">Location</label>
+          <Input v-model="form.location" placeholder="e.g. Abuja, Nigeria" />
         </div>
 
         <!-- About -->
         <div class="space-y-2">
-          <label class="text-sm font-medium">
-            About your business
-          </label>
-
+          <label class="text-sm font-medium">About your business</label>
           <textarea
             v-model="form.description"
             rows="4"
@@ -68,63 +41,45 @@
         </div>
 
         <div class="flex justify-end">
-          <Button
-            type="submit"
-            size="sm"
-            :disabled="isSaving"
-          >
-            {{ isSaving ? "Saving..." : "Save changes" }}
+          <Button type="submit" size="sm" :disabled="authStore.isSavingProfile">
+            {{ authStore.isSavingProfile ? "Saving..." : "Save changes" }}
           </Button>
         </div>
       </form>
     </Card>
 
     <!-- Preferences -->
-    <Card
-      title="Preferences"
-      description="A few settings for how Fitelle works for you."
-    >
+    <Card title="Preferences" description="A few settings for how Fitelle works for you.">
       <div class="divide-y divide-border">
         <!-- Order notifications -->
-        <div
-          class="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
-        >
+        <div class="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
           <div>
-            <p class="text-sm font-medium">
-              Order notifications
-            </p>
-
-            <p class="text-xs text-muted-foreground">
-              Get notified when an order needs your attention.
-            </p>
+            <p class="text-sm font-medium">Order notifications</p>
+            <p class="text-xs text-muted-foreground">Get notified when an order needs your attention.</p>
           </div>
-
-          <Switch v-model:checked="form.notifications" />
+          <Switch v-model:checked="form.notifications" @update:checked="handleSave" />
         </div>
 
         <!-- WhatsApp -->
-        <div
-          class="flex items-center justify-between gap-4 py-4"
-        >
+        <div class="flex items-center justify-between gap-4 py-4">
           <div>
-            <p class="text-sm font-medium">
-              WhatsApp contact
-            </p>
-
-            <p class="text-xs text-muted-foreground">
-              Allow customers to contact you through WhatsApp.
-            </p>
+            <p class="text-sm font-medium">WhatsApp contact</p>
+            <p class="text-xs text-muted-foreground">Allow customers to contact you through WhatsApp.</p>
           </div>
-
-          <Switch v-model:checked="form.whatsapp" />
+          <Switch v-model:checked="form.whatsapp" @update:checked="handleSave" />
         </div>
       </div>
     </Card>
   </main>
+
+  <main v-else class="space-y-3">
+    <div class="h-8 w-48 animate-pulse rounded bg-muted/60" />
+    <div class="h-64 w-full animate-pulse rounded-xl bg-muted/60" />
+  </main>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, watch } from "vue";
 import { toast } from "vue-sonner";
 
 import Header from "@/components/base/Header.vue";
@@ -132,33 +87,42 @@ import Card from "@/components/base/Card.vue";
 import Button from "@/components/ui/button/Button.vue";
 import Input from "@/components/ui/input/Input.vue";
 import Switch from "@/components/ui/switch/Switch.vue";
+import { useAuthStore } from "@/stores/auth";
 
-const isSaving = ref(false);
+const authStore = useAuthStore();
 
 const form = reactive({
-  businessName: "",
-  phone: "",
+  brandName: "",
+  phoneNumber: "",
   location: "",
   description: "",
   notifications: true,
   whatsapp: true,
 });
 
-async function saveSettings() {
-  isSaving.value = true;
+function fillFromUser() {
+  const user = authStore.currentUser;
+  if (!user) return;
+  form.brandName = user.brandName ?? "";
+  form.phoneNumber = user.phoneNumber ?? "";
+  form.location = user.location ?? "";
+  form.description = user.description ?? "";
+  form.notifications = user.notifications ?? true;
+  form.whatsapp = user.whatsapp ?? true;
+}
 
+// currentUser may already be hydrated (persisted store) or may only land
+// once Firebase auth state finishes restoring — handle both.
+fillFromUser();
+watch(() => authStore.currentUser, fillFromUser);
+
+async function handleSave() {
   try {
-    // Connect this to Firebase later.
-    await new Promise((resolve) =>
-      setTimeout(resolve, 500),
-    );
-
+    await authStore.updateProfile({ ...form });
     toast.success("Settings saved");
   } catch (error) {
     console.error("Failed to save settings:", error);
     toast.error("Couldn't save your settings.");
-  } finally {
-    isSaving.value = false;
   }
 }
 </script>

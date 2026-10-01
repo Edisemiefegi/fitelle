@@ -1,11 +1,21 @@
-import { PRODUCTION_STATUSES, type PaymentStatus, type ProductionStatus } from "@/types/order";
+import {
+  PRODUCTION_STATUSES,
+  type PaymentStatus,
+  type ProductionStatus,
+} from "@/types/order";
 
-export const ORDER_STATUS_OPTIONS: { label: string; value: "all" | ProductionStatus }[] = [
+export const ORDER_STATUS_OPTIONS: {
+  label: string;
+  value: "all" | ProductionStatus;
+}[] = [
   { label: "All statuses", value: "all" },
   ...PRODUCTION_STATUSES.map((status) => ({ label: status, value: status })),
 ];
 
-export const PAYMENT_STATUS_OPTIONS: { label: string; value: "all" | PaymentStatus }[] = [
+export const PAYMENT_STATUS_OPTIONS: {
+  label: string;
+  value: "all" | PaymentStatus;
+}[] = [
   { label: "All payments", value: "all" },
   { label: "Unpaid", value: "unpaid" },
   { label: "Partial", value: "partial" },
@@ -18,11 +28,10 @@ export interface OrderFiltersState {
   dateFrom: string | null;
   dateTo: string | null;
 }
- 
+
 export function defaultOrderFilters(): OrderFiltersState {
   return { status: "all", paymentStatus: "all", dateFrom: null, dateTo: null };
 }
- 
 
 export const FABRIC_SOURCE_OPTIONS = [
   { label: "Customer supplied", value: "customer_supplied" as const },
@@ -38,28 +47,62 @@ export function statusProgress(status: ProductionStatus): number {
   return Math.round((idx / (PRODUCTION_STATUSES.length - 1)) * 100);
 }
 
-export function derivePaymentStatus(total: number, paid: number): PaymentStatus {
+export function derivePaymentStatus(
+  total: number,
+  paid: number,
+): PaymentStatus {
   if (paid <= 0) return "unpaid";
   if (paid >= total) return "paid";
   return "partial";
 }
 
-export function isOverdue(dueDate: string | null, status: ProductionStatus): boolean {
+export function isDueWithin(
+  dueDate: string | null,
+  status: ProductionStatus,
+  days: number,
+): boolean {
+  if (!dueDate || status === "Delivered") return false;
+  const due = new Date(dueDate).setHours(0, 0, 0, 0);
+  const today = new Date().setHours(0, 0, 0, 0);
+  const diffDays = Math.round((due - today) / (1000 * 60 * 60 * 24));
+  return diffDays >= 0 && diffDays <= days;
+}
+
+export function isOverdue(
+  dueDate: string | null,
+  status: ProductionStatus,
+): boolean {
   if (!dueDate || status === "Delivered") return false;
   return new Date(dueDate).getTime() < Date.now();
 }
 
 export function formatDueLabel(dueDate: string | null): string {
   if (!dueDate) return "No due date";
- 
+
   const due = new Date(dueDate);
-  const formatted = due.toLocaleDateString("en-NG", { month: "short", day: "numeric" });
- 
+  const formatted = due.toLocaleDateString("en-NG", {
+    month: "short",
+    day: "numeric",
+  });
+
   const msPerDay = 1000 * 60 * 60 * 24;
-  const diffDays = Math.round((due.setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / msPerDay);
- 
+  const diffDays = Math.round(
+    (due.setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / msPerDay,
+  );
+
   if (diffDays === 0) return `Due today (${formatted})`;
   if (diffDays === 1) return `Due tomorrow (${formatted})`;
   if (diffDays > 1) return `Due ${formatted} (in ${diffDays} days)`;
   return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? "" : "s"} overdue`;
 }
+
+export const STATUS_BADGE_CLASSES: Record<ProductionStatus, string> = {
+  "Order Received": "bg-blue-50 text-blue-700",
+  Measuring: "bg-purple-50 text-purple-700",
+  Cutting: "bg-amber-50 text-amber-700",
+  Sewing: "bg-orange-50 text-orange-700",
+  Fitting: "bg-pink-50 text-pink-700",
+  Finishing: "bg-indigo-50 text-indigo-700",
+  Ready: "bg-emerald-50 text-emerald-700",
+  Delivered: "bg-green-50 text-green-700",
+};

@@ -11,11 +11,13 @@ import {
   signOut,
 } from "@/service/firebase";
 import type { AuthSchemaType } from "@/schema";
+import { ensureUniqueSlug } from "@/lib";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     currentUser: null as UserType | null,
     authReady: false,
+    isSavingProfile: false,
   }),
 
   actions: {
@@ -58,6 +60,7 @@ export const useAuthStore = defineStore("auth", {
           fullName: "",
           phoneNumber: "",
           location: "",
+          slug: "",
         };
 
         await setDoc(doc(db, "users", data.id), data);
@@ -77,6 +80,31 @@ export const useAuthStore = defineStore("auth", {
         throw error;
       }
     },
+
+    async updateProfile(updates: Partial<UserType>) {
+      if (!this.currentUser) throw new Error("Not authenticated");
+ 
+      this.isSavingProfile = true;
+      try {
+        await setDoc(doc(db, "users", this.currentUser.id), updates, { merge: true });
+        this.currentUser = { ...this.currentUser, ...updates };
+      } catch (error) {
+        console.error("updateProfile error:", error);
+        throw error;
+      } finally {
+        this.isSavingProfile = false;
+      }
+    },
+
+    async ensureSlug(): Promise<string> {
+      if (!this.currentUser) throw new Error("Not authenticated");
+      if (this.currentUser.slug) return this.currentUser.slug;
+ 
+      const slug = await ensureUniqueSlug(this.currentUser.brandName || "atelier", this.currentUser.id);
+      await this.updateProfile({ slug });
+      return slug;
+    },
+ 
     async forgotPassword() {},
   },
 

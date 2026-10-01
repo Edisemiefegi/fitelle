@@ -85,7 +85,6 @@ import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ShoppingBag } from "@lucide/vue";
 
-import Card from "@/components/base/Card.vue";
 import Button from "@/components/ui/button/Button.vue";
 import { useOrderStore } from "@/stores/order";
 
