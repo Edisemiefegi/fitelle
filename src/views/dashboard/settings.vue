@@ -40,10 +40,13 @@
             <p class="text-sm font-medium">Order notifications</p>
             <p class="text-xs text-muted-foreground">Get notified when an order needs your attention.</p>
           </div>
-          <Switch v-model:checked="form.notifications" @update:checked="handleSave" />
+          <Switch :model-value="form.notifications" @update:model-value="toggleNotifications" />
         </div>
       </div>
     </Card>
+
+    <PushCard />
+    <InstallAppCard />
   </main>
 
   <main v-else class="space-y-3">
@@ -61,6 +64,8 @@ import Card from "@/components/base/Card.vue";
 import Button from "@/components/ui/button/Button.vue";
 import Input from "@/components/ui/input/Input.vue";
 import Switch from "@/components/ui/switch/Switch.vue";
+import PushCard from "@/components/settings/PushCard.vue";
+import InstallAppCard from "@/components/settings/InstallAppCard.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
@@ -83,6 +88,11 @@ function fillFromUser() {
 // once Firebase auth state finishes restoring — handle both.
 fillFromUser();
 watch(() => authStore.currentUser, fillFromUser);
+
+async function toggleNotifications(value: boolean) {
+  form.notifications = value;
+  await handleSave();
+}
 
 async function handleSave() {
   try {

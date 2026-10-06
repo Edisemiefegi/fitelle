@@ -22,6 +22,7 @@ export interface OrderFormState {
   description: string;
   notes: string;
   dueDate: string | null;
+  fittingDate: string | null;
   requirements: OrderRequirement[];
   fabricSource: FabricSource;
   measurements: MeasurementSnapshot;
@@ -48,6 +49,7 @@ function toFormState(order?: OrderType | null): OrderFormState {
       description: "",
       notes: "",
       dueDate: null,
+      fittingDate: null,
       requirements: [],
       fabricSource: "customer_supplied",
       measurements: emptyMeasurementSnapshot(),
@@ -64,6 +66,7 @@ function toFormState(order?: OrderType | null): OrderFormState {
     description: order.description,
     notes: order.notes,
     dueDate: order.dueDate,
+    fittingDate: order.fittingDate ?? null,
     requirements: order.requirements.map((r) => ({ ...r })),
     fabricSource: order.fabricSource,
     measurements: { ...order.measurements, values: { ...order.measurements.values } },
@@ -139,6 +142,7 @@ export function useOrderForm(order?: OrderType | null) {
       description: form.description,
       notes: form.notes,
       dueDate: form.dueDate,
+      fittingDate: form.fittingDate,
       requirements: form.requirements,
       fabricSource: form.fabricSource,
       measurements: form.measurements,
@@ -177,6 +181,7 @@ export function useOrderForm(order?: OrderType | null) {
           description: data.description,
           notes: data.notes,
           dueDate: data.dueDate,
+          fittingDate: data.fittingDate,
           requirements: data.requirements,
           fabricSource: data.fabricSource,
           measurements: data.measurements,

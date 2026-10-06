@@ -52,6 +52,7 @@ export interface OrderStatusEvent {
 
 export type OrderType = {
   id: string;
+  userId?: string; // owner; legacy orders created before this field have none
 
   customerId: string;
   customerName: string;
@@ -61,6 +62,7 @@ export type OrderType = {
   description: string;
   notes: string;
   dueDate: string | null; 
+  fittingDate?: string | null; // when the customer comes in for a fitting
 
   requirements: OrderRequirement[];
   fabricSource: FabricSource;

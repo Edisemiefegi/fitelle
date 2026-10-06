@@ -45,7 +45,7 @@
         <li class="flex items-start gap-3">
           <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-black text-xs font-medium text-white">1</span>
           <p class="text-sm">
-            Tap the <Share class="inline size-3.5 -translate-y-0.5" /> <strong>Share</strong> icon in Browser's toolbar.
+            Tap the <Share class="inline size-3.5 -translate-y-0.5" /> <strong>Share</strong> icon in Safari's toolbar.
           </p>
         </li>
         <li class="flex items-start gap-3">

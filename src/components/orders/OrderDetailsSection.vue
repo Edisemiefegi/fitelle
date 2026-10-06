@@ -21,6 +21,17 @@
           />
         </div>
       </Field>
+
+      <Field label="Fitting date (optional)">
+        <div class="relative">
+          <Calendar class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            v-model="form.fittingDate"
+            type="date"
+            class="h-11 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+          />
+        </div>
+      </Field>
     </div>
 
     <Field label="Description">

@@ -14,6 +14,8 @@
       @update:open="orderModalOpen = $event"
     />
 
+    <TodayCard />
+
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <Stats v-for="stat in stats" :key="stat.title" v-bind="stat" />
     </div>
@@ -26,23 +28,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 // import Card from "@/components/base/Card.vue";
 import Header from "@/components/base/Header.vue";
 import Stats from "@/components/base/Stats.vue";
 import { ShoppingCartIcon, UsersIcon, PackageIcon } from "@lucide/vue";
 import RecentOrder from "@/components/orders/RecentOrder.vue";
 import OrderFormModal from "@/components/orders/OrderFormModal.vue";
+import TodayCard from "@/components/notifications/TodayCard.vue";
 import { useOrderStore } from "@/stores/order";
 import { isDueWithin } from "@/constants/orders";
 import { formatCurrency } from "@/lib";
 
 const orderStore = useOrderStore();
 const orderModalOpen = ref(false);
-
-onMounted(() => {
-  if (!orderStore.orders.length) orderStore.fetchOrders().catch(() => {});
-});
 
 const inProgress = computed(() =>
   orderStore.orders.filter((o) => o.status !== "Delivered"),

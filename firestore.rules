@@ -1,9 +1,15 @@
 rules_version = '2';
 
-// Rules for the portfolio feature only. Merge into your existing rules
+// Rules for the portfolio and push-notification features only. Merge into your existing rules
 // (users, customers, orders...) rather than replacing them.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // users/{userId}/devices/{token} — push registrations; only the owner touches them
+    // (the Cloud Function reads them with the Admin SDK, which bypasses rules).
+    match /users/{userId}/devices/{token} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
 
     // portfolios/{userId} — public to read (visitors load it by slug), owner-only to write.
     match /portfolios/{userId} {

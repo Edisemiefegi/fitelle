@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { toast } from "vue-sonner";
+import { useAuthStore } from "@/stores/auth";
 import {
   collection,
   addDoc,
@@ -55,6 +56,7 @@ export const useCustomerStore = defineStore("customer", {
           ...customer,
           measurements: customer.measurements ?? createEmptyMeasurements(),
           customFields: customer.customFields ?? [],
+          ...(useAuthStore().currentUser?.id && { userId: useAuthStore().currentUser!.id }),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };

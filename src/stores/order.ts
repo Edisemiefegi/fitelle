@@ -13,6 +13,13 @@ import type { OrderType, ProductionStatus, OrderImage } from "@/types/order";
 import type { OrderSchemaType } from "@/schema/order";
 import { derivePaymentStatus } from "@/constants/orders";
 import { generateId } from "@/lib";
+import { useAuthStore } from "@/stores/auth";
+
+/** Stamps new documents with their owner so server-side jobs (push) can tell whose they are. */
+const ownerField = () => {
+  const userId = useAuthStore().currentUser?.id;
+  return userId ? { userId } : {};
+};
 
 export const useOrderStore = defineStore("order", {
   state: () => ({
@@ -79,6 +86,8 @@ export const useOrderStore = defineStore("order", {
         description: order.description ?? "",
         notes: order.notes ?? "",
         dueDate: order.dueDate ?? null,
+        fittingDate: order.fittingDate ?? null,
+        ...ownerField(),
         requirements: order.requirements,
         fabricSource: order.fabricSource,
         referenceImages,

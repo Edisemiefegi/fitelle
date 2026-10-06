@@ -31,6 +31,7 @@ export const orderSchema = z
     description: z.string().max(2000).optional().default(""),
     notes: z.string().max(2000).optional().default(""),
     dueDate: z.string().nullable().optional().default(null),
+    fittingDate: z.string().nullable().optional().default(null),
 
     requirements: z.array(orderRequirementSchema).default([]),
     fabricSource: z
