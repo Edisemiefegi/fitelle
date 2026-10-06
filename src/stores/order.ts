@@ -51,6 +51,7 @@ export const useOrderStore = defineStore("order", {
       } catch (error) {
         this.error = "Failed to load orders.";
         console.error("fetchOrders error:", error);
+        toast.error("Couldn't load your orders. Check your connection.");
         throw error;
       } finally {
         this.isLoading = false;

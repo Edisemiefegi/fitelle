@@ -252,6 +252,8 @@ async function saveMeasurements() {
     });
     client.value = store.getCustomerById(client.value.id);
     editingMeasurements.value = false;
+  } catch {
+    // store already toasted
   } finally {
     savingMeasurements.value = false;
   }
@@ -263,6 +265,8 @@ async function saveNotes() {
   try {
     await store.updateCustomer(client.value.id, { notes: notes.value });
     client.value = store.getCustomerById(client.value.id);
+  } catch {
+    // store already toasted
   } finally {
     savingNotes.value = false;
   }

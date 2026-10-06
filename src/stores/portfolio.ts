@@ -1,45 +1,67 @@
 import { defineStore } from "pinia";
 import { toast } from "vue-sonner";
-import { collection, addDoc, db, doc, updateDoc, deleteDoc, getDocs, query, where } from "@/service/firebase";
 import { deleteImageFile } from "@/service/appwrite";
-import type { PortfolioWork, PortfolioStatus } from "@/types/portfolio";
-import type { PortfolioWorkSchemaType } from "@/schema/portfolio";
-import type { MediaFile } from "@/types/index";
+import * as api from "@/service/portfolio";
 import { useAuthStore } from "@/stores/auth";
+import type { MediaFile } from "@/types/index";
+import type { Portfolio, PortfolioStatus, PortfolioWork } from "@/types/portfolio";
+import type { PortfolioWorkSchemaType } from "@/schema/portfolio";
+
+function requireUserId(): string {
+  const user = useAuthStore().currentUser;
+  if (!user) throw new Error("Not authenticated");
+  return user.id;
+}
 
 export const usePortfolioStore = defineStore("portfolio", {
   state: () => ({
+    portfolio: null as Portfolio | null,
     works: [] as PortfolioWork[],
     isLoading: false,
+    isSaving: false,
     error: null as string | null,
   }),
 
   getters: {
-    getWorkById:
-      (state) =>
-      (id: string): PortfolioWork | null =>
-        state.works.find((w) => w.id === id) ?? null,
+    publicUrl: (state) =>
+      state.portfolio ? `${window.location.origin}/portfolio/${state.portfolio.slug}` : "",
+
+    getWorkById: (state) => (id: string) => state.works.find((w) => w.id === id) ?? null,
   },
 
   actions: {
-    async fetchWorks() {
-      const authStore = useAuthStore();
-      if (!authStore.currentUser) return;
+    /** Loads the owner's portfolio and works, creating the portfolio the first time. */
+    async load() {
+      const user = useAuthStore().currentUser;
+      if (!user) return;
 
       this.isLoading = true;
       this.error = null;
       try {
-        const snapshot = await getDocs(
-          query(collection(db, "portfolio_works"), where("userId", "==", authStore.currentUser.id)),
-        );
-        this.works = snapshot.docs
-          .map((d: any) => ({ ...d.data(), id: d.id }) as PortfolioWork)
-          .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+        this.portfolio = (await api.getPortfolio(user.id)) ?? (await api.createPortfolio(user));
+        this.works = await api.listWorks(user.id);
       } catch (error) {
+        console.error("portfolio load error:", error);
         this.error = "Failed to load your portfolio.";
-        console.error("fetchWorks error:", error);
       } finally {
         this.isLoading = false;
+      }
+    },
+
+    async saveProfile(updates: Parameters<typeof api.updatePortfolio>[1]) {
+      if (!this.portfolio) return;
+
+      this.isSaving = true;
+      try {
+        const updatedAt = await api.updatePortfolio(requireUserId(), updates);
+        this.portfolio = { ...this.portfolio, ...updates, updatedAt };
+        toast.success("Portfolio updated");
+      } catch (error) {
+        console.error("saveProfile error:", error);
+        toast.error("Couldn't save your changes. Try again.");
+        throw error;
+      } finally {
+        this.isSaving = false;
       }
     },
 
@@ -48,32 +70,17 @@ export const usePortfolioStore = defineStore("portfolio", {
       images: MediaFile[],
       status: PortfolioStatus = "draft",
     ): Promise<string> {
-      const authStore = useAuthStore();
-      if (!authStore.currentUser) throw new Error("Not authenticated");
-
-      const now = new Date().toISOString();
-      const payload: Omit<PortfolioWork, "id"> = {
-        userId: authStore.currentUser.id,
-        title: data.title,
-        category: data.category,
-        description: data.description ?? "",
-        fabric: data.fabric ?? "",
-        occasion: data.occasion ?? "",
-        tags: data.tags,
-        images,
-        coverImageId: images[0]?.fileId ?? null,
-        status,
-        publishedAt: status === "published" ? now : null,
-        createdAt: now,
-        updatedAt: now,
-      };
-
       try {
-        const docRef = await addDoc(collection(db, "portfolio_works"), payload);
-        await updateDoc(docRef, { id: docRef.id });
-        this.works.unshift({ ...payload, id: docRef.id });
+        const work = await api.createWork(requireUserId(), {
+          ...data,
+          images,
+          coverImageId: images[0]?.fileId ?? null,
+          status,
+          publishedAt: status === "published" ? new Date().toISOString() : null,
+        });
+        this.works.unshift(work);
         toast.success(status === "published" ? "Work published" : "Saved as draft");
-        return docRef.id;
+        return work.id;
       } catch (error) {
         console.error("addWork error:", error);
         toast.error("Couldn't save this work. Check your connection and try again.");
@@ -83,11 +90,11 @@ export const usePortfolioStore = defineStore("portfolio", {
 
     async updateWork(id: string, updates: Partial<PortfolioWork>) {
       try {
-        const payload = { ...updates, updatedAt: new Date().toISOString() };
-        await updateDoc(doc(db, "portfolio_works", id), payload);
+        const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...changes } = updates;
+        const saved = await api.updateWork(requireUserId(), id, changes);
 
         const index = this.works.findIndex((w) => w.id === id);
-        if (index !== -1) this.works[index] = { ...this.works[index], ...payload };
+        if (index !== -1) this.works[index] = { ...this.works[index], ...saved };
         toast.success("Work updated");
       } catch (error) {
         console.error("updateWork error:", error);
@@ -108,7 +115,7 @@ export const usePortfolioStore = defineStore("portfolio", {
     async deleteWork(id: string) {
       const work = this.getWorkById(id);
       try {
-        await deleteDoc(doc(db, "portfolio_works", id));
+        await api.deleteWork(requireUserId(), id);
         this.works = this.works.filter((w) => w.id !== id);
         toast.success("Work deleted");
       } catch (error) {
@@ -117,11 +124,8 @@ export const usePortfolioStore = defineStore("portfolio", {
         throw error;
       }
 
-      if (work) {
-        for (const img of work.images) deleteImageFile(img.fileId).catch(() => {});
-      }
+      // Best effort: an orphaned file is harmless, a failed delete shouldn't surface.
+      work?.images.forEach((img) => deleteImageFile(img.fileId).catch(() => {}));
     },
   },
-
-  persist: true,
 });

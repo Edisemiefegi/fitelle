@@ -160,7 +160,7 @@ const customerActions = [
         `Delete ${customer.name}? This can't be undone.`,
       );
       if (!confirmed) return;
-      await deleteCustomer(customer.id);
+      await deleteCustomer(customer.id).catch(() => {}); // store already toasted
     },
   },
 ];

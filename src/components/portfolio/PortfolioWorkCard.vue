@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="group relative block aspect-[4/5] w-full overflow-hidden rounded-2xl bg-muted text-left"
+    class="group relative block aspect-[4/5] w-full overflow-hidden rounded-lg bg-muted text-left"
     @click="emit('edit', work)"
   >
     <img
@@ -10,20 +10,33 @@
       :alt="work.title"
       class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
     />
-    <div v-else class="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+    <div
+      v-else
+      class="flex h-full w-full items-center justify-center text-xs text-muted-foreground"
+    >
       No photos yet
     </div>
 
     <!-- Always-on gradient + title, editorial style -->
-    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent p-3 pt-10">
-      <p class="font-display text-sm font-medium text-white">{{ work.title }}</p>
-      <p class="text-[10px] uppercase tracking-wide text-white/70">{{ work.category }}</p>
+    <div
+      class="absolute inset-x-0 bottom-0 bg-gradient-to-t bg-white from-black/70 via-black/10 to-transparent p-3 "
+    >
+      <p class="font-display text-sm font-medium ">
+        {{ work.title }}
+      </p>
+      <p class="text-[10px] uppercase tracking-wide ">
+        {{ work.category }}
+      </p>
     </div>
 
     <!-- Status pill -->
     <span
       class="absolute left-2.5 top-2.5 rounded-full px-2 py-0.5 text-[9px] font-medium"
-      :class="work.status === 'published' ? 'bg-emerald-500/90 text-white' : 'bg-white/90 text-foreground'"
+      :class="
+        work.status === 'published'
+          ? 'bg-emerald-500/90 text-white'
+          : 'bg-white/90 text-foreground'
+      "
     >
       {{ work.status === "published" ? "Published" : "Draft" }}
     </span>
@@ -39,15 +52,33 @@
           </span>
         </template>
 
-        <Button size="sm" variant="ghost" class="w-full justify-start text-xs" @click="emit('edit', work)">
+        <Button
+          size="sm"
+          variant="ghost"
+          class="w-full justify-start text-xs"
+          @click="emit('edit', work)"
+        >
           <Pencil class="size-3" />
           Edit
         </Button>
-        <Button size="sm" variant="ghost" class="w-full justify-start text-xs" @click="togglePublish">
-          <component :is="work.status === 'published' ? EyeOff : Eye" class="size-3" />
+        <Button
+          size="sm"
+          variant="ghost"
+          class="w-full justify-start text-xs"
+          @click="togglePublish"
+        >
+          <component
+            :is="work.status === 'published' ? EyeOff : Eye"
+            class="size-3"
+          />
           {{ work.status === "published" ? "Unpublish" : "Publish" }}
         </Button>
-        <Button size="sm" variant="ghost" class="w-full justify-start text-xs text-danger" @click="emit('delete', work)">
+        <Button
+          size="sm"
+          variant="ghost"
+          class="w-full justify-start text-xs text-danger"
+          @click="emit('delete', work)"
+        >
           <Trash2 class="size-3" />
           Delete
         </Button>
@@ -78,6 +109,9 @@ const portfolioStore = usePortfolioStore();
 const cover = computed(() => getCoverImage(props.work));
 
 function togglePublish() {
-  portfolioStore.setPublished(props.work.id, props.work.status === "published" ? "draft" : "published");
+  portfolioStore.setPublished(
+    props.work.id,
+    props.work.status === "published" ? "draft" : "published",
+  );
 }
 </script>

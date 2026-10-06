@@ -1,12 +1,12 @@
 <template>
-  <div v-if="work && business" class="min-h-screen bg-white">
+  <div v-if="work && portfolio" class="min-h-screen bg-white">
     <nav class="mx-auto max-w-4xl px-6 pt-8">
       <RouterLink
         :to="`/portfolio/${slug}`"
         class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft class="size-3.5" />
-        {{ business.businessName }}
+        {{ portfolio.brandName }}
       </RouterLink>
     </nav>
 
@@ -67,8 +67,8 @@
 
         <div class="flex flex-wrap items-center gap-2 pt-2">
           <a
-            v-if="business.whatsapp && business.phoneNumber"
-            :href="toWhatsAppLink(business.phoneNumber, whatsappMessage)"
+            v-if="canWhatsApp"
+            :href="toWhatsAppLink(portfolio.contact.phone, whatsappMessage)"
             target="_blank"
             rel="noopener"
             class="inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-xs font-medium text-white transition hover:opacity-85"
@@ -123,45 +123,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { ArrowLeft, Copy, MessageCircle } from "@lucide/vue";
-import {
-  fetchBusinessBySlug,
-  fetchPublicWork,
-} from "@/service/publicPortfolio";
-import { toWhatsAppLink } from "@/lib/index";
-import type {
-  PublicBusinessProfile,
-  PublicPortfolioWork,
-} from "@/types/portfolio";
+import { usePublicWork } from "@/composables/usePublicPortfolio";
+import { toWhatsAppLink } from "@/lib";
 
 const route = useRoute();
 const slug = route.params.slug as string;
-const workId = route.params.workId as string;
+const { portfolio, work, isLoading } = usePublicWork(slug, route.params.workId as string);
 
-const business = ref<(PublicBusinessProfile & { userId: string }) | null>(null);
-const work = ref<PublicPortfolioWork | null>(null);
-const isLoading = ref(true);
 const copied = ref(false);
-const whatsappMessage = computed(() => {
-  if (!work.value) return "";
 
-  return `Hi ${business.value?.businessName}, I love this piece — "${work.value.title}" — and would love to talk about something similar.`;
-});
+const canWhatsApp = computed(() => portfolio.value?.contact.whatsapp && portfolio.value.contact.phone);
 
-onMounted(async () => {
-  try {
-    business.value = await fetchBusinessBySlug(slug);
-    if (business.value) {
-      work.value = await fetchPublicWork(business.value.userId, workId);
-    }
-  } catch (error) {
-    console.error("Failed to load portfolio work:", error);
-  } finally {
-    isLoading.value = false;
-  }
-});
+const whatsappMessage = computed(
+  () =>
+    `Hi ${portfolio.value?.brandName}, I love this piece — "${work.value?.title}" — and would love to talk about something similar.`,
+);
 
 async function copyLink() {
   await navigator.clipboard.writeText(window.location.href);

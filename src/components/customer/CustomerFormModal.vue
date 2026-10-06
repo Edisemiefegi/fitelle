@@ -67,7 +67,6 @@
 </template>
 
 <script setup lang="ts">
-// import { toast } from "vue-sonner";
 import Modal from "@/components/base/Modal.vue";
 import SectionLabel from "@/components/orders/SectionLabel.vue";
 import CustomerForm from "./CustomerForm.vue";

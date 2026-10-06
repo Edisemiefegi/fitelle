@@ -55,7 +55,8 @@ const handleRegister = async () => {
 
     await registerUser(result.data);
     router.push("/overview");
-  } catch (error) {
+  } catch {
+    // the auth store already showed the error toast
   } finally {
     isLoading.value = false;
   }

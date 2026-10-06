@@ -23,23 +23,6 @@
           </div>
         </div>
 
-        <!-- Location -->
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Location</label>
-          <Input v-model="form.location" placeholder="e.g. Abuja, Nigeria" />
-        </div>
-
-        <!-- About -->
-        <div class="space-y-2">
-          <label class="text-sm font-medium">About your business</label>
-          <textarea
-            v-model="form.description"
-            rows="4"
-            placeholder="Tell your customers a little about your business..."
-            class="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-          />
-        </div>
-
         <div class="flex justify-end">
           <Button type="submit" size="sm" :disabled="authStore.isSavingProfile">
             {{ authStore.isSavingProfile ? "Saving..." : "Save changes" }}
@@ -58,15 +41,6 @@
             <p class="text-xs text-muted-foreground">Get notified when an order needs your attention.</p>
           </div>
           <Switch v-model:checked="form.notifications" @update:checked="handleSave" />
-        </div>
-
-        <!-- WhatsApp -->
-        <div class="flex items-center justify-between gap-4 py-4">
-          <div>
-            <p class="text-sm font-medium">WhatsApp contact</p>
-            <p class="text-xs text-muted-foreground">Allow customers to contact you through WhatsApp.</p>
-          </div>
-          <Switch v-model:checked="form.whatsapp" @update:checked="handleSave" />
         </div>
       </div>
     </Card>
@@ -94,10 +68,7 @@ const authStore = useAuthStore();
 const form = reactive({
   brandName: "",
   phoneNumber: "",
-  location: "",
-  description: "",
   notifications: true,
-  whatsapp: true,
 });
 
 function fillFromUser() {
@@ -105,10 +76,7 @@ function fillFromUser() {
   if (!user) return;
   form.brandName = user.brandName ?? "";
   form.phoneNumber = user.phoneNumber ?? "";
-  form.location = user.location ?? "";
-  form.description = user.description ?? "";
   form.notifications = user.notifications ?? true;
-  form.whatsapp = user.whatsapp ?? true;
 }
 
 // currentUser may already be hydrated (persisted store) or may only land
@@ -120,9 +88,8 @@ async function handleSave() {
   try {
     await authStore.updateProfile({ ...form });
     toast.success("Settings saved");
-  } catch (error) {
-    console.error("Failed to save settings:", error);
-    toast.error("Couldn't save your settings.");
+  } catch {
+    // the auth store already showed the error toast
   }
 }
 </script>

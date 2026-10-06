@@ -36,7 +36,6 @@
 
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { toast } from "vue-sonner";
 import { UserPlus } from "@lucide/vue";
 import PopOver from "../base/PopOver.vue";
 
@@ -76,14 +75,12 @@ async function submit() {
       customFields: [],
     } as any);
 
-    toast.success("Customer added");
     emit("created", id);
     form.name = "";
     form.phone = "";
     open.value = false;
   } catch (error) {
     console.error("Quick add customer failed:", error);
-    toast.error("Couldn't add the customer. Try again.");
   } finally {
     isSubmitting.value = false;
   }

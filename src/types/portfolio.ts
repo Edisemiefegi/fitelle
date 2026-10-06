@@ -15,9 +15,43 @@ export type PortfolioCategory = (typeof PORTFOLIO_CATEGORIES)[number];
 
 export type PortfolioStatus = "draft" | "published";
 
+export type PortfolioService = {
+  title: string;
+  description: string;
+};
+
+export type PortfolioContact = {
+  location: string;
+  phone: string;
+  email: string;
+  instagram: string;
+  tiktok: string;
+  facebook: string;
+  whatsapp: boolean;
+};
+
+/** One per business. Lives at `portfolios/{userId}`; its works are in the `works` subcollection. */
+export type Portfolio = {
+  id: string; // same as the owner's user id
+  slug: string; // public URL segment, unique across portfolios
+
+  brandName: string;
+  tagline: string;
+  introduction: string;
+  about: string;
+  designerBio: string;
+  image: MediaFile | null;
+
+  services: PortfolioService[];
+  contact: PortfolioContact;
+
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Lives at `portfolios/{userId}/works/{workId}`. */
 export type PortfolioWork = {
   id: string;
-  userId: string; // owner — portfolio is the one place in this app scoped per business
 
   title: string;
   category: PortfolioCategory;
@@ -32,22 +66,6 @@ export type PortfolioWork = {
   status: PortfolioStatus;
   publishedAt: string | null;
 
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 };
-
-/** Public-safe projection — no userId, nothing a visitor shouldn't see. */
-export type PublicPortfolioWork = Pick<
-  PortfolioWork,
-  "id" | "title" | "category" | "description" | "fabric" | "occasion" | "tags" | "images" | "coverImageId"
->;
-
-export interface PublicBusinessProfile {
-  businessName: string;
-  bio: string;
-  profileImage: string;
-  location: string;
-  phoneNumber: string;
-  whatsapp: boolean;
-  slug: string;
-}

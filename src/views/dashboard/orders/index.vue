@@ -96,10 +96,12 @@ import { useDebouncedRef } from "@/composables/useDebounceRef";
 import { toast } from "vue-sonner";
 import {  exportOrdersToPdf,} from "@/lib/pdf";
 import { useAuthStore } from "@/stores/auth";
+import { usePortfolioStore } from "@/stores/portfolio";
 
 const router = useRouter();
 const orderStore = useOrderStore();
 const authStore = useAuthStore();
+const portfolioStore = usePortfolioStore();
 
 const PAGE_SIZE = 10;
 const visibleCount = ref(PAGE_SIZE);
@@ -168,7 +170,7 @@ function businessInfo() {
   return {
     businessName: authStore.currentUser?.brandName,
     phone: authStore.currentUser?.phoneNumber,
-    location: authStore.currentUser?.location,
+    location: portfolioStore.portfolio?.contact.location,
   };
 }
 function handleDownloadPdf() {

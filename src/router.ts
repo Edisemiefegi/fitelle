@@ -4,11 +4,8 @@ import { authMiddleware } from "./middleware/auth";
 const routes = [
   {
     path: "/",
-    name: "index",
+    name: "Home",
     component: () => import("./views/index.vue"),
-    meta: {
-      guestOnly: true,
-    },
   },
 
   {
@@ -29,7 +26,7 @@ const routes = [
   },
 
   {
-    path: "",
+    path: "/dashboard",
     component: () => import("@/layouts/DashboardLayout.vue"),
     meta: {
       requiresAuth: true,
@@ -76,13 +73,13 @@ const routes = [
 
   {
     path: "/portfolio/:slug/:workId",
-    name: "PublicPortfolio",
-    component: () => import("@/views/dashboard/portfolio/[workId].vue"),
+    name: "PublicPortfolioWork",
+    component: () => import("@/views/portfolio/[workId].vue"),
   },
   {
     path: "/portfolio/:slug",
-    name: "PortfolioSlug",
-    component: () => import("@/views/dashboard/portfolio/[slug].vue"),
+    name: "PublicPortfolio",
+    component: () => import("@/views/portfolio/[slug].vue"),
   },
 
   {

@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { toast } from "vue-sonner";
 import {
   collection,
   addDoc,
@@ -61,9 +62,11 @@ export const useCustomerStore = defineStore("customer", {
         await updateDoc(docRef, { id: docRef.id });
 
         this.customers.unshift({ ...payload, id: docRef.id } as CustomerType);
+        toast.success("Customer added");
         return docRef.id;
       } catch (error) {
-        console.error("Error logging in user:", error);
+        console.error("addNewCustomer error:", error);
+        toast.error("Couldn't add the customer. Try again.");
         throw error;
       }
     },
@@ -78,8 +81,10 @@ export const useCustomerStore = defineStore("customer", {
         if (index !== -1) {
           this.customers[index] = { ...this.customers[index], ...payload };
         }
+        toast.success("Customer updated");
       } catch (error) {
         console.error("updateCustomer error:", error);
+        toast.error("Couldn't save changes. Try again.");
         throw error;
       }
     },
@@ -122,6 +127,7 @@ export const useCustomerStore = defineStore("customer", {
       } catch (error) {
         this.error = "Failed to load customers.";
         console.error("fetchCustomers error:", error);
+        toast.error("Couldn't load your customers. Check your connection.");
         throw error;
       } finally {
         this.isLoading = false;
@@ -140,8 +146,10 @@ export const useCustomerStore = defineStore("customer", {
       try {
         await deleteDoc(doc(db, "customers", id));
         this.customers = this.customers.filter((c) => c.id !== id);
+        toast.success("Customer deleted");
       } catch (error) {
         console.error("deleteCustomer error:", error);
+        toast.error("Couldn't delete the customer. Try again.");
         throw error;
       }
     },

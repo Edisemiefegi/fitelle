@@ -1,5 +1,6 @@
 import type { UserType } from "@/types";
 import { defineStore } from "pinia";
+import { toast } from "vue-sonner";
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -11,7 +12,22 @@ import {
   signOut,
 } from "@/service/firebase";
 import type { AuthSchemaType } from "@/schema";
-import { ensureUniqueSlug } from "@/lib";
+import { usePortfolioStore } from "@/stores/portfolio";
+
+const AUTH_ERRORS: Record<string, string> = {
+  "auth/invalid-credential": "Incorrect email or password.",
+  "auth/wrong-password": "Incorrect email or password.",
+  "auth/user-not-found": "Incorrect email or password.",
+  "auth/email-already-in-use": "An account with this email already exists.",
+  "auth/weak-password": "Choose a stronger password.",
+  "auth/too-many-requests": "Too many attempts. Please wait a moment and try again.",
+  "auth/network-request-failed": "Network error. Check your connection and try again.",
+};
+
+function authErrorMessage(error: unknown, fallback: string): string {
+  const code = (error as { code?: string })?.code;
+  return (code && AUTH_ERRORS[code]) || fallback;
+}
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -35,12 +51,13 @@ export const useAuthStore = defineStore("auth", {
 
         if (docSnap.exists()) {
           this.currentUser = docSnap.data() as UserType;
-          console.log("Document data:", this.currentUser);
+          toast.success("Welcome back");
         } else {
-          console.log("No such document!");
+          throw new Error("User profile not found");
         }
       } catch (error) {
         console.error("Error logging in user:", error);
+        toast.error(authErrorMessage(error, "Couldn't log you in. Try again."));
         throw error;
       }
     },
@@ -59,14 +76,14 @@ export const useAuthStore = defineStore("auth", {
           profileImage: "",
           fullName: "",
           phoneNumber: "",
-          location: "",
-          slug: "",
         };
 
         await setDoc(doc(db, "users", data.id), data);
         this.currentUser = data as UserType;
+        toast.success("Account created");
       } catch (error) {
         console.error("Error registering user:", error);
+        toast.error(authErrorMessage(error, "Couldn't create your account. Try again."));
         throw error;
       }
     },
@@ -75,8 +92,10 @@ export const useAuthStore = defineStore("auth", {
       try {
         await signOut(auth);
         this.currentUser = null;
+        usePortfolioStore().$reset();
       } catch (error) {
         console.error("Error logging out user:", error);
+        toast.error("Couldn't log you out. Try again.");
         throw error;
       }
     },
@@ -90,21 +109,13 @@ export const useAuthStore = defineStore("auth", {
         this.currentUser = { ...this.currentUser, ...updates };
       } catch (error) {
         console.error("updateProfile error:", error);
+        toast.error("Couldn't save your settings.");
         throw error;
       } finally {
         this.isSavingProfile = false;
       }
     },
 
-    async ensureSlug(): Promise<string> {
-      if (!this.currentUser) throw new Error("Not authenticated");
-      if (this.currentUser.slug) return this.currentUser.slug;
- 
-      const slug = await ensureUniqueSlug(this.currentUser.brandName || "atelier", this.currentUser.id);
-      await this.updateProfile({ slug });
-      return slug;
-    },
- 
     async forgotPassword() {},
   },
 

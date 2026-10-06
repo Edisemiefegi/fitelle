@@ -5,11 +5,7 @@ export interface UserType {
   profileImage?: string;
   fullName?: string;
   phoneNumber?: string;
-  location?: string;
-  description?: string;
   notifications?: boolean;
-  whatsapp?: boolean 
-  slug?: string;
 }
 
 
