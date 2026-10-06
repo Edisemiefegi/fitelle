@@ -23,5 +23,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-functions/src/attention.ts
-functions/lib
+
+# Firebase service-account keys (never commit)
+*-firebase-adminsdk-*.json
+serviceAccount*.json

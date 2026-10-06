@@ -1,36 +1,30 @@
 <template>
   <Card title="Push notifications" description="Get a nudge on this device when an order needs you, even when Fitelle is closed.">
-    <div class="mt-4">
-      <p v-if="!supported" class="text-xs text-muted-foreground">
-        This browser can't receive push notifications. You'll still see every alert inside Fitelle.
-      </p>
-
-      <p v-else-if="needsInstall" class="text-xs text-muted-foreground">
-        On iPhone, notifications work once Fitelle is added to your home screen. Install it below, open it from your
-        home screen, then come back here to turn them on.
-      </p>
-
-      <div v-else class="flex items-center justify-between gap-4">
-        <div>
-          <p class="text-sm font-medium">This device</p>
-          <p class="text-xs text-muted-foreground">
-            {{ permission === "denied" ? "Blocked in your browser settings." : "Daily summary of what needs your attention." }}
-          </p>
-        </div>
-        <Switch
-          :model-value="isEnabled"
-          :disabled="isBusy || permission === 'denied'"
-          @update:model-value="$event ? enable() : disable()"
-        />
+    <div class="mt-4 flex items-center justify-between gap-4">
+      <div>
+        <p class="text-sm font-medium">Push notifications</p>
+        <p class="text-xs text-muted-foreground">{{ hint }}</p>
       </div>
+
+      <Switch :model-value="isEnabled" :disabled="!canToggle" @update:model-value="$event ? enable() : disable()" />
     </div>
   </Card>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import Card from "@/components/base/Card.vue";
 import Switch from "@/components/ui/switch/Switch.vue";
 import { usePushNotifications } from "@/composables/usePushNotifications";
 
 const { supported, isEnabled, isBusy, needsInstall, permission, enable, disable } = usePushNotifications();
+
+const canToggle = computed(() => supported.value && !needsInstall.value && !isBusy.value && permission.value !== "denied");
+
+const hint = computed(() => {
+  if (needsInstall.value) return "On iPhone, add Fitelle to your home screen and open it from there to turn this on.";
+  if (!supported.value) return "Not available in this browser. You'll still see every alert inside Fitelle.";
+  if (permission.value === "denied") return "Blocked in your browser settings. Allow notifications for this site, then come back.";
+  return isEnabled.value ? "On for this device: a daily summary of what needs your attention." : "Off for this device.";
+});
 </script>
