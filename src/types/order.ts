@@ -38,6 +38,15 @@ export interface OrderImage {
 }
 
 
+/** A progress post for the customer: photos and/or a short note, shown on the tracking link only when visible. */
+export interface ProgressUpdate {
+  id: string;
+  note: string;
+  images: OrderImage[];
+  visibleToCustomer: boolean;
+  createdAt: string;
+}
+
 export interface MeasurementSnapshot {
   unit: Unit;
   values: Record<string, number | null>;
@@ -68,7 +77,7 @@ export type OrderType = {
   fabricSource: FabricSource;
 
   referenceImages: OrderImage[];
-  progressImages: OrderImage[];
+  progressUpdates?: ProgressUpdate[]; // missing on orders created before this existed
 
   measurements: MeasurementSnapshot;
 
@@ -94,6 +103,7 @@ export type PublicOrderView = Pick<
   | "garmentType"
   | "description"
   | "dueDate"
+  | "fittingDate"
   | "requirements"
   | "referenceImages"
   | "status"
@@ -105,5 +115,17 @@ export type PublicOrderView = Pick<
   | "customerName"
   | "trackingSlug"
 > & {
-  progressImages: OrderImage[]; 
+  progressUpdates: ProgressUpdate[]; // only the ones the tailor chose to share
+  brand: PublicOrderBrand | null;
 };
+
+/** Who the order is from, so the tracking page can carry the business's identity. */
+export interface PublicOrderBrand {
+  name: string;
+  logoUrl: string | null;
+  location: string;
+  phone: string;
+  whatsapp: boolean;
+  instagram: string;
+  portfolioSlug: string;
+}

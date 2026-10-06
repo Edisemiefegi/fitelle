@@ -58,7 +58,7 @@
     />
 
     <!-- Design reference -->
-    <div class="space-y-2">
+    <div class="space-y-3">
       <p class="flex items-center gap-2 font-display font-medium">
         <Scissors class="size-4" /> Design reference
       </p>
@@ -83,14 +83,14 @@
       </div>
 
       <div>
-        <p class="text-primary text-[10px]">THE BRIEF</p>
+        <p class="text-primary text-sm">THE BRIEF</p>
         <p class="text-sm">
           {{ order.description || "No description added." }}
         </p>
       </div>
 
       <div>
-        <p class="text-primary text-[10px]">FABRIC</p>
+        <p class="text-primary text-sm">FABRIC</p>
         <p class="text-xs">
           {{
             order.fabricSource === "customer_supplied"
@@ -100,22 +100,7 @@
         </p>
       </div>
 
-      <div v-if="order.requirements.length">
-        <p class="text-primary text-[10px]">REQUIREMENTS</p>
-        <ul class="mt-1 space-y-1">
-          <li
-            v-for="req in order.requirements"
-            :key="req.id"
-            class="flex items-center gap-2 text-xs"
-          >
-            <Check v-if="req.done" class="size-3 text-primary" />
-            <span v-else class="size-3 rounded-full border border-border" />
-            <span :class="req.done && 'text-muted-foreground line-through'">{{
-              req.label
-            }}</span>
-          </li>
-        </ul>
-      </div>
+      <OrderChecklist :order="order" />
     </div>
 
     <!-- Measurements (read-only; edit via "Edit order") -->
@@ -252,7 +237,7 @@
         </div>
       </div>
 
-      <ProgressPhotosSection :order="order" />
+      <ProgressUpdates :order="order" />
     </div>
 
     <!-- Tracking link -->
@@ -336,7 +321,8 @@ import OrderFormModal from "@/components/orders/OrderFormModal.vue";
 import RecordPaymentDialog from "@/components/orders/RecordPaymentDialog.vue";
 import StatusUpdateSheet from "@/components/orders/StatusUpdateSheet.vue";
 import AlertDialog from "@/components/base/AlertDialog.vue";
-import ProgressPhotosSection from "@/components/orders/ProgressPhotosSection.vue";
+import ProgressUpdates from "@/components/orders/ProgressUpdates.vue";
+import OrderChecklist from "@/components/orders/OrderChecklist.vue";
 
 import { useOrderStore } from "@/stores/order";
 import { PRODUCTION_STATUSES, type OrderType } from "@/types/order";

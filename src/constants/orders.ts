@@ -2,6 +2,7 @@ import {
   PRODUCTION_STATUSES,
   type PaymentStatus,
   type ProductionStatus,
+  type OrderType,
 } from "@/types/order";
 
 export const ORDER_STATUS_OPTIONS: {
@@ -22,15 +23,41 @@ export const PAYMENT_STATUS_OPTIONS: {
   { label: "Paid", value: "paid" },
 ];
 
+export type OrderDateField = "dueDate" | "createdAt";
+
+export const DATE_FIELD_OPTIONS: { label: string; value: OrderDateField }[] = [
+  { label: "Due date", value: "dueDate" },
+  { label: "Order date", value: "createdAt" },
+];
+
 export interface OrderFiltersState {
   status: "all" | ProductionStatus;
   paymentStatus: "all" | PaymentStatus;
-  dateFrom: string | null;
-  dateTo: string | null;
+  dateField: OrderDateField; // which date the range below applies to
+  dateFrom: string; // "YYYY-MM-DD", or "" for no lower bound
+  dateTo: string; // "YYYY-MM-DD", or "" for no upper bound
 }
 
 export function defaultOrderFilters(): OrderFiltersState {
-  return { status: "all", paymentStatus: "all", dateFrom: null, dateTo: null };
+  return { status: "all", paymentStatus: "all", dateField: "dueDate", dateFrom: "", dateTo: "" };
+}
+
+/** The calendar day ("YYYY-MM-DD", local time) an order's date falls on; null when it has none. */
+export function orderDay(order: Pick<OrderType, "dueDate" | "createdAt">, field: OrderDateField): string | null {
+  const value = order[field];
+  if (!value) return null;
+  if (field === "dueDate") return value.slice(0, 10); // already a plain date from the date input
+  const date = new Date(value);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/** True when the order's chosen date lies inside the (inclusive) range; an empty range matches everything. */
+export function matchesDateRange(order: Pick<OrderType, "dueDate" | "createdAt">, filters: OrderFiltersState): boolean {
+  if (!filters.dateFrom && !filters.dateTo) return true;
+  const day = orderDay(order, filters.dateField);
+  if (!day) return false;
+  return (!filters.dateFrom || day >= filters.dateFrom) && (!filters.dateTo || day <= filters.dateTo);
 }
 
 export const FABRIC_SOURCE_OPTIONS = [

@@ -5,7 +5,6 @@ export interface UserType {
   profileImage?: string;
   fullName?: string;
   phoneNumber?: string;
-  notifications?: boolean;
 }
 
 

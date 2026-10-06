@@ -89,7 +89,7 @@ import StatusUpdateSheet from "@/components/orders/StatusUpdateSheet.vue";
 import OrderFormModal from "@/components/orders/OrderFormModal.vue";
 
 import { useOrderStore } from "@/stores/order";
-import { defaultOrderFilters } from "@/constants/orders";
+import { defaultOrderFilters, matchesDateRange } from "@/constants/orders";
 import { toWhatsAppLink } from "@/lib";
 import type { OrderType } from "@/types/order";
 import { useDebouncedRef } from "@/composables/useDebounceRef";
@@ -129,10 +129,8 @@ const filteredOrders = computed(() => {
 
     const matchesStatus = filters.status === "all" || order.status === filters.status;
     const matchesPayment = filters.paymentStatus === "all" || order.paymentStatus === filters.paymentStatus;
-    const matchesDateFrom = !filters.dateFrom || (!!order.dueDate && order.dueDate >= filters.dateFrom);
-    const matchesDateTo = !filters.dateTo || (!!order.dueDate && order.dueDate <= filters.dateTo);
 
-    return matchesSearch && matchesStatus && matchesPayment && matchesDateFrom && matchesDateTo;
+    return matchesSearch && matchesStatus && matchesPayment && matchesDateRange(order, filters);
   });
 });
 

@@ -31,20 +31,6 @@
       </form>
     </Card>
 
-    <!-- Preferences -->
-    <Card title="Preferences" description="A few settings for how Fitelle works for you.">
-      <div class="divide-y divide-border">
-        <!-- Order notifications -->
-        <div class="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-          <div>
-            <p class="text-sm font-medium">Order notifications</p>
-            <p class="text-xs text-muted-foreground">Get notified when an order needs your attention.</p>
-          </div>
-          <Switch :model-value="form.notifications" @update:model-value="toggleNotifications" />
-        </div>
-      </div>
-    </Card>
-
     <PushCard />
     <InstallAppCard />
   </main>
@@ -63,7 +49,6 @@ import Header from "@/components/base/Header.vue";
 import Card from "@/components/base/Card.vue";
 import Button from "@/components/ui/button/Button.vue";
 import Input from "@/components/ui/input/Input.vue";
-import Switch from "@/components/ui/switch/Switch.vue";
 import PushCard from "@/components/settings/PushCard.vue";
 import InstallAppCard from "@/components/settings/InstallAppCard.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -73,7 +58,6 @@ const authStore = useAuthStore();
 const form = reactive({
   brandName: "",
   phoneNumber: "",
-  notifications: true,
 });
 
 function fillFromUser() {
@@ -81,18 +65,12 @@ function fillFromUser() {
   if (!user) return;
   form.brandName = user.brandName ?? "";
   form.phoneNumber = user.phoneNumber ?? "";
-  form.notifications = user.notifications ?? true;
 }
 
 // currentUser may already be hydrated (persisted store) or may only land
 // once Firebase auth state finishes restoring — handle both.
 fillFromUser();
 watch(() => authStore.currentUser, fillFromUser);
-
-async function toggleNotifications(value: boolean) {
-  form.notifications = value;
-  await handleSave();
-}
 
 async function handleSave() {
   try {

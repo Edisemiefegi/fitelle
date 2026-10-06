@@ -9,7 +9,7 @@ import {
   deleteDoc,
   getDocs,
 } from "@/service/firebase";
-import type { OrderType, ProductionStatus, OrderImage } from "@/types/order";
+import type { OrderType, ProductionStatus, OrderImage, OrderRequirement, ProgressUpdate } from "@/types/order";
 import type { OrderSchemaType } from "@/schema/order";
 import { derivePaymentStatus } from "@/constants/orders";
 import { generateId } from "@/lib";
@@ -91,7 +91,7 @@ export const useOrderStore = defineStore("order", {
         requirements: order.requirements,
         fabricSource: order.fabricSource,
         referenceImages,
-        progressImages: [],
+        progressUpdates: [],
         measurements: order.measurements,
         status: order.status,
         statusHistory: [{ status: order.status, at: now }],
@@ -130,7 +130,8 @@ export const useOrderStore = defineStore("order", {
       }
     },
 
-    async updateOrder(id: string, updates: Partial<OrderType>) {
+    /** @param successMessage shown as a toast; pass null for small inline edits (ticking a box, etc.) */
+    async updateOrder(id: string, updates: Partial<OrderType>, successMessage: string | null = "Order updated") {
       try {
         const ref = doc(db, "orders", id);
         const payload = { ...updates, updatedAt: new Date().toISOString() };
@@ -140,7 +141,7 @@ export const useOrderStore = defineStore("order", {
         if (index !== -1) {
           this.orders[index] = { ...this.orders[index], ...payload };
         }
-        toast.success("Order updated");
+        if (successMessage) toast.success(successMessage);
       } catch (error) {
         console.error("updateOrder error:", error);
         toast.error(
@@ -164,10 +165,51 @@ export const useOrderStore = defineStore("order", {
 
       if (order) {
         const { deleteImageFile } = await import("@/service/appwrite.ts");
-        for (const img of [...order.referenceImages, ...order.progressImages]) {
+        const progressImages = (order.progressUpdates ?? []).flatMap((u) => u.images);
+        for (const img of [...order.referenceImages, ...progressImages]) {
           deleteImageFile(img.fileId).catch(() => {});
         }
       }
+    },
+
+    /** Saves a new checklist immediately and puts the old one back if the write fails. */
+    async saveRequirements(id: string, requirements: OrderRequirement[]) {
+      const order = this.getOrderById(id);
+      if (!order) return;
+      const previous = order.requirements;
+      order.requirements = requirements;
+      try {
+        await this.updateOrder(id, { requirements }, null);
+      } catch (error) {
+        order.requirements = previous;
+        throw error;
+      }
+    },
+
+    async addProgressUpdate(id: string, update: Pick<ProgressUpdate, "note" | "images" | "visibleToCustomer">) {
+      const order = this.getOrderById(id);
+      if (!order) return;
+      const entry: ProgressUpdate = { id: generateId("upd"), createdAt: new Date().toISOString(), ...update };
+      await this.updateOrder(id, { progressUpdates: [entry, ...(order.progressUpdates ?? [])] }, "Progress update added");
+    },
+
+    async setProgressUpdateVisibility(id: string, updateId: string, visible: boolean) {
+      const order = this.getOrderById(id);
+      if (!order) return;
+      const progressUpdates = (order.progressUpdates ?? []).map((u) =>
+        u.id === updateId ? { ...u, visibleToCustomer: visible } : u,
+      );
+      await this.updateOrder(id, { progressUpdates }, visible ? "Now visible on the tracking link" : "Hidden from the tracking link");
+    },
+
+    async removeProgressUpdate(id: string, updateId: string) {
+      const order = this.getOrderById(id);
+      const removed = order?.progressUpdates?.find((u) => u.id === updateId);
+      if (!order || !removed) return;
+      await this.updateOrder(id, { progressUpdates: order.progressUpdates!.filter((u) => u.id !== updateId) }, "Update removed");
+
+      const { deleteImageFile } = await import("@/service/appwrite.ts");
+      removed.images.forEach((img) => deleteImageFile(img.fileId).catch(() => {}));
     },
 
     async updateStatus(id: string, status: ProductionStatus) {

@@ -1,5 +1,7 @@
 <template>
   <main class="space-y-5">
+    <NotificationBell />
+
     <Header
       title="Good morning, Nuru."
       subtitle="Here is the shape of your atelier today."
@@ -30,6 +32,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 // import Card from "@/components/base/Card.vue";
+import NotificationBell from "@/components/notifications/NotificationBell.vue";
+
 import Header from "@/components/base/Header.vue";
 import Stats from "@/components/base/Stats.vue";
 import { ShoppingCartIcon, UsersIcon, PackageIcon } from "@lucide/vue";

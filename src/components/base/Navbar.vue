@@ -1,13 +1,8 @@
 <template>
   <nav
-    class="fixed z-50 left-1/2 -translate-x-1/2 bottom-4 lg:top-4 lg:bottom-auto isolate rounded-full p-1.5
-           bg-white/25 backdrop-blur-2xl backdrop-saturate-150
-           ring-1 ring-white/50
-           shadow-[0_8px_32px_rgba(0,0,0,0.14),inset_0_1px_1px_rgba(255,255,255,0.7),inset_0_-1px_1px_rgba(0,0,0,0.05)]
-           before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-full
-           before:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.55),rgba(255,255,255,0)_55%)]"
+    class="fixed z-50 left-1/2 -translate-x-1/2 bottom-4 lg:top-4 lg:bottom-auto isolate rounded-full p-1.5 bg-white/25 backdrop-blur-2xl backdrop-saturate-150 ring-1 ring-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.14),inset_0_1px_1px_rgba(255,255,255,0.7),inset_0_-1px_1px_rgba(0,0,0,0.05)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-[linear-gradient(to_bottom,rgba(255,255,255,0.55),rgba(255,255,255,0)_55%)]"
   >
-    <div class="flex items-center gap-1">
+    <div class="flex items-center sm:gap-1 gap-5">
       <Tooltip v-for="link in navLinks" :key="link.name" :text="link.name">
         <RouterLink
           :to="link.path"
@@ -20,7 +15,7 @@
         >
           <component
             :is="link.icon"
-            class="h-4 w-4 transition-transform duration-200 group-hover:scale-105"
+            class="h-5 w-5 transition-transform duration-200 group-hover:scale-105"
           />
         </RouterLink>
       </Tooltip>
@@ -42,7 +37,6 @@ const navLinks = [
   { name: "Portfolio", path: "/portfolio", icon: Images },
   { name: "Settings", path: "/settings", icon: Settings },
 ];
-
 
 function isActive(path: string) {
   return route.path === path || route.path.startsWith(`${path}/`);

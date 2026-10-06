@@ -10,9 +10,9 @@
           :alt="order.garmentType"
           class="h-full w-full object-cover"
         />
-        <span v-else class="text-lg font-semibold text-muted-foreground">
+        <div v-else class="text-lg font-semibold w-screen flex justify-center text-muted-foreground">
           {{ initials }}
-        </span>
+        </div>
 
         <span
           v-if="order.referenceImages.length"

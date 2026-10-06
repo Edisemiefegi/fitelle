@@ -1,5 +1,5 @@
 <template>
-  <Card title="Push notifications" description="Get a nudge on this device when an order needs you, even when Fitelle is closed.">
+  <Card title="Push notifications" description="Get notified on this device the moment something needs your attention, even when Fitelle is closed.">
     <div class="mt-4 flex items-center justify-between gap-4">
       <div>
         <p class="text-sm font-medium">Push notifications</p>
@@ -25,6 +25,6 @@ const hint = computed(() => {
   if (needsInstall.value) return "On iPhone, add Fitelle to your home screen and open it from there to turn this on.";
   if (!supported.value) return "Not available in this browser. You'll still see every alert inside Fitelle.";
   if (permission.value === "denied") return "Blocked in your browser settings. Allow notifications for this site, then come back.";
-  return isEnabled.value ? "On for this device: a daily summary of what needs your attention." : "Off for this device.";
+  return isEnabled.value ? "On. You'll be notified when an order is due soon, overdue, missing details or waiting on payment." : "Off for this device.";
 });
 </script>

@@ -22,7 +22,7 @@ const routes = [
   {
     path: "/track/:slug",
     name: "Slug",
-    component: () => import("@/views/dashboard/orders/[slug].vue"),
+    component: () => import("@/views/track/[slug].vue"),
   },
 
   {

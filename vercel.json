@@ -7,7 +7,7 @@
   ],
   "crons": [
     {
-      "path": "/api/daily-push",
+      "path": "/api/send-alerts",
       "schedule": "0 7 * * *"
     }
   ],
