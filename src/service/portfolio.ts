@@ -63,6 +63,7 @@ export async function createPortfolio(user: UserType): Promise<Portfolio> {
     about: "",
     designerBio: "",
     image: null,
+    heroWorkId: null,
     services: [],
     contact: {
       location: "",

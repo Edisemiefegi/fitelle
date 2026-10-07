@@ -1,9 +1,8 @@
 import { computed } from "vue";
 import { useStorage } from "@vueuse/core";
 import { getAttentionItems, attentionHeadline, type AttentionItem } from "@/lib/attention";
+import { todayKey } from "@/lib/date";
 import { useOrderStore } from "@/stores/order";
-
-const todayKey = () => new Date().toISOString().slice(0, 10);
 
 // id -> the day it was dismissed. A dismissed alert comes back the next day if it still applies.
 const dismissed = useStorage<Record<string, string>>("fitelle:dismissed-alerts", {});

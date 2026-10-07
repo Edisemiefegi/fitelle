@@ -48,10 +48,6 @@
           @stage="handleStage"
            @click="handleView(order)"
         />
-        <div>
-          
-        </div>
-
         <div
           v-if="!filteredOrders.length"
           class="rounded-xl border border-dashed border-border px-6 py-12 text-center"
@@ -61,9 +57,7 @@
         </div>
       </div>
 
-      <div v-if="hasMore" class="flex justify-center">
-        <Button variant="outline" size="sm" @click="visibleCount += PAGE_SIZE">Load more</Button>
-      </div>
+      <Pagination v-model="page" :total="filteredOrders.length" :page-size="PAGE_SIZE" />
     </template>
 
     <StatusUpdateSheet
@@ -84,6 +78,7 @@ import Header from "@/components/base/Header.vue";
 import Search from "@/components/base/Search.vue";
 import Button from "@/components/ui/button/Button.vue";
 import OrderCard from "@/components/orders/OrderCard.vue";
+import Pagination from "@/components/base/Pagination.vue";
 import OrderFilters from "@/components/orders/OrderFilters.vue";
 import StatusUpdateSheet from "@/components/orders/StatusUpdateSheet.vue";
 import OrderFormModal from "@/components/orders/OrderFormModal.vue";
@@ -93,6 +88,7 @@ import { defaultOrderFilters, matchesDateRange } from "@/constants/orders";
 import { toWhatsAppLink } from "@/lib";
 import type { OrderType } from "@/types/order";
 import { useDebouncedRef } from "@/composables/useDebounceRef";
+import { usePagination } from "@/composables/usePagination";
 import { toast } from "vue-sonner";
 import {  exportOrdersToPdf,} from "@/lib/pdf";
 import { useAuthStore } from "@/stores/auth";
@@ -102,9 +98,6 @@ const router = useRouter();
 const orderStore = useOrderStore();
 const authStore = useAuthStore();
 const portfolioStore = usePortfolioStore();
-
-const PAGE_SIZE = 10;
-const visibleCount = ref(PAGE_SIZE);
 
 const searchInput = ref("");
 const debouncedQuery = useDebouncedRef("", 300);
@@ -134,12 +127,9 @@ const filteredOrders = computed(() => {
   });
 });
 
-watch([debouncedQuery, filters], () => {
-  visibleCount.value = PAGE_SIZE;
-});
-
-const visibleOrders = computed(() => filteredOrders.value.slice(0, visibleCount.value));
-const hasMore = computed(() => visibleCount.value < filteredOrders.value.length);
+const PAGE_SIZE = 10;
+const { page, pageItems: visibleOrders, reset: resetPage } = usePagination(filteredOrders, PAGE_SIZE);
+watch([debouncedQuery, filters], resetPage);
 
 const formModalOpen = ref(false);
 const editingOrder = ref<OrderType | null>(null);

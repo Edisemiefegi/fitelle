@@ -3,7 +3,7 @@ import type { ZodType } from "zod";
 import { usePortfolioStore } from "@/stores/portfolio";
 import type { Portfolio } from "@/types/portfolio";
 
-type Section = Partial<Pick<Portfolio, "brandName" | "tagline" | "introduction" | "about" | "designerBio" | "image" | "services" | "contact">>;
+type Section = Partial<Pick<Portfolio, "brandName" | "tagline" | "introduction" | "about" | "designerBio" | "image" | "heroWorkId" | "services" | "contact">>;
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 

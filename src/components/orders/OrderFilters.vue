@@ -16,11 +16,11 @@
     <div class="flex flex-wrap items-center gap-2">
       <label class="flex items-center gap-2 text-xs text-muted-foreground">
         From
-        <input v-model="filters.dateFrom" type="date" :max="filters.dateTo || undefined" :class="DATE_INPUT" />
+        <DatePicker v-model="filters.dateFrom" :max="filters.dateTo" placeholder="Any date" class="h-9 w-44 text-xs" />
       </label>
       <label class="flex items-center gap-2 text-xs text-muted-foreground">
         To
-        <input v-model="filters.dateTo" type="date" :min="filters.dateFrom || undefined" :class="DATE_INPUT" />
+        <DatePicker v-model="filters.dateTo" :min="filters.dateFrom" placeholder="Any date" class="h-9 w-44 text-xs" />
       </label>
 
       <Button v-if="isActive" variant="ghost" size="sm" @click="emit('reset')">
@@ -34,13 +34,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Download, X } from "@lucide/vue";
+import DatePicker from "@/components/base/DatePicker.vue";
 import Select from "@/components/base/Select.vue";
 import Button from "@/components/ui/button/Button.vue";
 import { DATE_FIELD_OPTIONS, ORDER_STATUS_OPTIONS, PAYMENT_STATUS_OPTIONS } from "@/constants/orders";
 import type { OrderFiltersState } from "@/constants/orders";
-
-const DATE_INPUT =
-  "h-9 rounded-xl border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10";
 
 const props = defineProps<{ filters: OrderFiltersState }>();
 

@@ -41,6 +41,7 @@ export type Portfolio = {
   about: string;
   designerBio: string;
   image: MediaFile | null;
+  heroWorkId?: string | null; // the published work whose cover is the hero image; null/missing = latest work
 
   services: PortfolioService[];
   contact: PortfolioContact;

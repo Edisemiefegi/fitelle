@@ -37,7 +37,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { useClipboard } from "@vueuse/core";
+import { onMounted } from "vue";
 import { Copy, RotateCw } from "@lucide/vue";
 import Card from "@/components/base/Card.vue";
 import Header from "@/components/base/Header.vue";
@@ -58,17 +59,13 @@ const tabs = [
   { value: "contact", label: "Contact", component: Contact },
 ];
 
-const copied = ref(false);
+const { copy, copied } = useClipboard({ copiedDuring: 1500 });
 
 function handlePreview() {
   if (portfolioStore.publicUrl) window.open(portfolioStore.publicUrl, "_blank");
 }
 
-async function handleCopyLink() {
-  await navigator.clipboard.writeText(portfolioStore.publicUrl);
-  copied.value = true;
-  setTimeout(() => (copied.value = false), 1500);
-}
+const handleCopyLink = () => copy(portfolioStore.publicUrl);
 
 onMounted(() => portfolioStore.load());
 </script>

@@ -62,7 +62,7 @@
           </p>
 
           <p class="mt-1 text-xs text-muted-foreground">
-            Ordered {{ formatDate(order.createdAt) }}
+            Ordered {{ (order.createdAt ? formatDate(order.createdAt) : "—") }}
           </p>
         </div>
 
@@ -81,6 +81,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatCurrency, formatDate } from "@/lib";
 import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ShoppingBag } from "@lucide/vue";
@@ -115,21 +116,4 @@ function viewOrders() {
   router.push("/orders");
 }
 
-function formatDate(date?: string) {
-  if (!date) return "—";
-
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 </script>

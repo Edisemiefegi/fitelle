@@ -32,19 +32,14 @@
           <span class="font-normal text-muted-foreground"> (optional) </span>
         </label>
 
-        <textarea
-          id="notes"
-          v-model="form.notes"
-          rows="3"
-          placeholder="Anything worth remembering about this customer..."
-          class="w-full resize-none rounded-xl border border-border bg-background px-3 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-        />
+        <FormTextarea id="notes" v-model="form.notes" rows="3" placeholder="Anything worth remembering about this customer..." />
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+import FormTextarea from "@/components/base/FormTextarea.vue";
 import Field from "../base/Field.vue";
 import Input from "../ui/input/Input.vue";
 

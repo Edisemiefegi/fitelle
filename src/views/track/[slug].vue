@@ -70,11 +70,7 @@
             <li v-for="update in order.progressUpdates" :key="update.id">
               <p class="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{{ formatDate(update.createdAt) }}</p>
               <p v-if="update.note" class="mt-1.5 text-sm leading-6">{{ update.note }}</p>
-              <div v-if="update.images.length" class="mt-2.5 grid gap-2" :class="update.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'">
-                <a v-for="img in update.images" :key="img.fileId" :href="img.url" target="_blank" rel="noopener" class="overflow-hidden rounded-2xl bg-muted">
-                  <img :src="img.url" alt="Progress photo" loading="lazy" class="w-full object-cover" :class="update.images.length === 1 ? 'max-h-96' : 'aspect-square'" />
-                </a>
-              </div>
+              <ImageStrip v-if="update.images.length" class="mt-2.5" :images="update.images.map((img) => ({ url: img.url, alt: 'Progress photo' }))" />
             </li>
           </ul>
         </section>
@@ -119,15 +115,10 @@
           </dl>
         </section>
 
-        <!-- Brief + references -->
-        <section v-if="order.description || order.referenceImages.length" class="rounded-3xl bg-white p-5 shadow-sm">
+        <!-- Brief -->
+        <section v-if="order.description" class="rounded-3xl bg-white p-5 shadow-sm">
           <h2 class="font-display text-lg">The brief</h2>
           <p v-if="order.description" class="mt-2 text-sm leading-6 text-muted-foreground">{{ order.description }}</p>
-          <!-- <div v-if="order.referenceImages.length" class="mt-3 grid grid-cols-3 gap-2">
-            <a v-for="img in order.referenceImages" :key="img.fileId" :href="img.url" target="_blank" rel="noopener" class="aspect-square overflow-hidden rounded-xl bg-muted">
-              <img :src="img.url" alt="Reference" loading="lazy" class="h-full w-full object-cover" />
-            </a>
-          </div> -->
         </section>
 
         <!-- Contact -->
@@ -159,6 +150,8 @@
 </template>
 
 <script setup lang="ts">
+import { getInitials } from "@/lib";
+import ImageStrip from "@/components/base/ImageStrip.vue";
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { AtSign, CalendarDays, Check, MapPin, MessageCircle, PackageSearch, Phone } from "@lucide/vue";
@@ -188,9 +181,7 @@ onMounted(async () => {
 const brand = computed(() => order.value?.brand ?? null);
 const brandName = computed(() => brand.value?.name || "Your designer");
 const firstName = computed(() => order.value?.customerName.trim().split(/\s+/)[0] ?? "");
-const initials = computed(() =>
-  brandName.value.split(" ").filter(Boolean).slice(0, 2).map((word) => word[0].toUpperCase()).join(""),
-);
+const initials = computed(() => getInitials(brandName.value));
 
 const currentIndex = computed(() => (order.value ? statusIndex(order.value.status) : 0));
 const isDelivered = computed(() => order.value?.status === "Delivered");

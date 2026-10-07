@@ -3,7 +3,7 @@
     <NotificationBell />
 
     <Header
-      title="Good morning, Nuru."
+      :title="`${greeting}, ${authStore.currentUser?.brandName || 'there'}.`"
       subtitle="Here is the shape of your atelier today."
       button="New order"
       text="Studio notes"
@@ -16,11 +16,12 @@
       @update:open="orderModalOpen = $event"
     />
 
-    <TodayCard />
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <Stats v-for="stat in stats" :key="stat.title" v-bind="stat" />
     </div>
+
+    <TodayCard />
 
     <div class="grid grid-cols-3 gap-4">
       <RecentOrder class="col-span-3" />
@@ -40,11 +41,15 @@ import { ShoppingCartIcon, UsersIcon, PackageIcon } from "@lucide/vue";
 import RecentOrder from "@/components/orders/RecentOrder.vue";
 import OrderFormModal from "@/components/orders/OrderFormModal.vue";
 import TodayCard from "@/components/notifications/TodayCard.vue";
+import { useGreeting } from "@/composables/useGreeting";
+import { useAuthStore } from "@/stores/auth";
 import { useOrderStore } from "@/stores/order";
 import { isDueWithin } from "@/constants/orders";
 import { formatCurrency } from "@/lib";
 
 const orderStore = useOrderStore();
+const authStore = useAuthStore();
+const greeting = useGreeting();
 const orderModalOpen = ref(false);
 
 const inProgress = computed(() =>

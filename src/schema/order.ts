@@ -62,11 +62,9 @@ export function createPaymentSchema(balance: number) {
   });
 }
 
-export type PaymentSchemaType = z.infer<ReturnType<typeof createPaymentSchema>>;
 
 export const quickCustomerSchema = z.object({
   name: z.string().min(2, "Enter the customer's name"),
   phone: z.string().min(7, "Enter a valid phone number"),
 });
 
-export type QuickCustomerSchemaType = z.infer<typeof quickCustomerSchema>;

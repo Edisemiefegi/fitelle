@@ -1,3 +1,4 @@
+import { daysUntil, parseDateKey, toDateKey } from "@/lib/date";
 import {
   PRODUCTION_STATUSES,
   type PaymentStatus,
@@ -34,22 +35,19 @@ export interface OrderFiltersState {
   status: "all" | ProductionStatus;
   paymentStatus: "all" | PaymentStatus;
   dateField: OrderDateField; // which date the range below applies to
-  dateFrom: string; // "YYYY-MM-DD", or "" for no lower bound
-  dateTo: string; // "YYYY-MM-DD", or "" for no upper bound
+  dateFrom: string | null; // "YYYY-MM-DD", or empty for no lower bound
+  dateTo: string | null; // "YYYY-MM-DD", or empty for no upper bound
 }
 
 export function defaultOrderFilters(): OrderFiltersState {
-  return { status: "all", paymentStatus: "all", dateField: "dueDate", dateFrom: "", dateTo: "" };
+  return { status: "all", paymentStatus: "all", dateField: "dueDate", dateFrom: null, dateTo: null };
 }
 
 /** The calendar day ("YYYY-MM-DD", local time) an order's date falls on; null when it has none. */
 export function orderDay(order: Pick<OrderType, "dueDate" | "createdAt">, field: OrderDateField): string | null {
   const value = order[field];
   if (!value) return null;
-  if (field === "dueDate") return value.slice(0, 10); // already a plain date from the date input
-  const date = new Date(value);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return field === "dueDate" ? value.slice(0, 10) : toDateKey(new Date(value)); // due dates are already plain days
 }
 
 /** True when the order's chosen date lies inside the (inclusive) range; an empty range matches everything. */
@@ -89,38 +87,32 @@ export function isDueWithin(
   days: number,
 ): boolean {
   if (!dueDate || status === "Delivered") return false;
-  const due = new Date(dueDate).setHours(0, 0, 0, 0);
-  const today = new Date().setHours(0, 0, 0, 0);
-  const diffDays = Math.round((due - today) / (1000 * 60 * 60 * 24));
-  return diffDays >= 0 && diffDays <= days;
+  const diff = daysUntil(dueDate);
+  return diff >= 0 && diff <= days;
 }
 
+/** Overdue only once the due day has passed; an order due today is not overdue yet. */
 export function isOverdue(
   dueDate: string | null,
   status: ProductionStatus,
 ): boolean {
   if (!dueDate || status === "Delivered") return false;
-  return new Date(dueDate).getTime() < Date.now();
+  return daysUntil(dueDate) < 0;
 }
 
 export function formatDueLabel(dueDate: string | null): string {
   if (!dueDate) return "No due date";
 
-  const due = new Date(dueDate);
-  const formatted = due.toLocaleDateString("en-NG", {
+  const formatted = parseDateKey(dueDate).toLocaleDateString("en-NG", {
     month: "short",
     day: "numeric",
   });
+  const diff = daysUntil(dueDate);
 
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const diffDays = Math.round(
-    (due.setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / msPerDay,
-  );
-
-  if (diffDays === 0) return `Due today (${formatted})`;
-  if (diffDays === 1) return `Due tomorrow (${formatted})`;
-  if (diffDays > 1) return `Due ${formatted} (in ${diffDays} days)`;
-  return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? "" : "s"} overdue`;
+  if (diff === 0) return `Due today (${formatted})`;
+  if (diff === 1) return `Due tomorrow (${formatted})`;
+  if (diff > 1) return `Due ${formatted} (in ${diff} days)`;
+  return `${Math.abs(diff)} day${Math.abs(diff) === 1 ? "" : "s"} overdue`;
 }
 
 export const STATUS_BADGE_CLASSES: Record<ProductionStatus, string> = {

@@ -5,9 +5,9 @@
   >
     <div class="absolute inset-0">
       <img
-        v-if="portfolio.image"
-        :src="portfolio.image.url"
-        :alt="portfolio.brandName"
+        v-if="heroImage"
+        :src="heroImage"
+        :alt="heroWork?.title ?? portfolio.brandName"
         class="hero-image h-full w-full object-cover"
       />
 
@@ -73,21 +73,33 @@
       </div>
 
       <div
-        class="hero-reveal flex items-end justify-between text-[9px] uppercase tracking-[0.2em] text-white/60"
+        class="hero-reveal flex items-end justify-between gap-4 text-[9px] uppercase tracking-[0.2em] text-white/60"
       >
-        <span>Independent by design</span>
-        <span>Scroll to discover</span>
+        <RouterLink
+          v-if="heroWork"
+          :to="`/portfolio/${portfolio.slug}/${heroWork.id}`"
+          class="group inline-flex items-center gap-2 transition-colors hover:text-white"
+        >
+          Featured: {{ heroWork.title }}
+          <ArrowUpRight class="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </RouterLink>
+        <span v-else>Independent by design</span>
+        <span class="hidden sm:inline">Scroll to discover</span>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { ArrowDown } from "@lucide/vue";
-import type { Portfolio } from "@/types/portfolio";
+import { computed, onMounted } from "vue";
+import { ArrowDown, ArrowUpRight } from "@lucide/vue";
+import { getCoverImage } from "@/constants/portfolio";
+import type { Portfolio, PortfolioWork } from "@/types/portfolio";
 
-defineProps<{ portfolio: Portfolio }>();
+const props = defineProps<{ portfolio: Portfolio; heroWork: PortfolioWork | null }>();
+
+// The chosen piece's cover; the brand photo only when there are no published works yet.
+const heroImage = computed(() => (props.heroWork && getCoverImage(props.heroWork)?.url) || props.portfolio.image?.url || "");
 
 onMounted(() => {
   if (typeof window === "undefined") return;

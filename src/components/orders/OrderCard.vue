@@ -144,6 +144,7 @@
 </template>
 
 <script setup lang="ts">
+import { getInitials } from "@/lib";
 import { computed } from "vue";
 import { ArrowUpRight, Eye, MessageCircle } from "@lucide/vue";
 import Card from "../base/Card.vue";
@@ -169,14 +170,7 @@ const emit = defineEmits<{
 
 const coverImage = computed(() => props.order.referenceImages[0]?.url ?? null);
 
-const initials = computed(() =>
-  props.order.customerName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join(""),
-);
+const initials = computed(() => getInitials(props.order.customerName));
 
 const step = computed(() => statusIndex(props.order.status) + 1);
 const totalSteps = PRODUCTION_STATUSES.length;

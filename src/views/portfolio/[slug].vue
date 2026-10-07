@@ -3,7 +3,7 @@
     <PortfolioHeader :portfolio="portfolio" />
 
     <main>
-      <PortfolioHero :portfolio="portfolio" />
+      <PortfolioHero :portfolio="portfolio" :hero-work="heroWork" />
       <PortfolioGallery :works="works" :slug="portfolio.slug" :is-loading="isLoading" />
       <PortfolioAbout :portfolio="portfolio" />
       <PortfolioService :portfolio="portfolio" />
@@ -31,5 +31,5 @@ import PortfolioNotFound from "@/components/portfolio/PortfolioNotFound.vue";
 import { usePublicPortfolio } from "@/composables/usePublicPortfolio";
 
 const slug = useRoute().params.slug as string;
-const { portfolio, works, isLoading } = usePublicPortfolio(slug);
+const { portfolio, works, heroWork, isLoading } = usePublicPortfolio(slug);
 </script>

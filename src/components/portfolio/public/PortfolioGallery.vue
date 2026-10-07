@@ -19,6 +19,23 @@
         </span>
       </div>
 
+      <!-- Category filter -->
+      <div v-if="categories.length > 1" class="-mt-6 mb-12 flex flex-wrap gap-2" role="tablist" aria-label="Filter by category">
+        <button
+          v-for="option in ['All', ...categories]"
+          :key="option"
+          type="button"
+          role="tab"
+          :aria-selected="activeCategory === option"
+          class="rounded-full border px-4 py-1.5 text-[11px] uppercase tracking-[0.14em] transition-colors"
+          :class="activeCategory === option ? 'border-black bg-black text-white' : 'border-black/15 text-muted-foreground hover:border-black/40 hover:text-foreground'"
+          @click="activeCategory = option"
+        >
+          {{ option }}
+          <span class="ml-1 opacity-60">{{ option === "All" ? works.length : counts[option] }}</span>
+        </button>
+      </div>
+
       <div v-if="isLoading" class="grid gap-8 md:grid-cols-2">
         <div
           v-for="i in 4"
@@ -28,11 +45,12 @@
       </div>
 
       <div
-        v-else-if="works.length"
+        v-else-if="visibleWorks.length"
+        :key="activeCategory"
         class="grid gap-x-5 gap-y-16 md:grid-cols-12 md:gap-y-24"
       >
         <RouterLink
-          v-for="(work, index) in works"
+          v-for="(work, index) in visibleWorks"
           :key="work.id"
           :to="`/portfolio/${slug}/${work.id}`"
           class="group block md:col-span-5"
@@ -67,7 +85,7 @@
 
       <div v-else class="border-y py-16 text-center">
         <p class="font-display text-2xl">
-          The collection is coming soon.
+          {{ works.length ? "Nothing in this category yet." : "The collection is coming soon." }}
         </p>
       </div>
     </div>
@@ -75,15 +93,32 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from "vue";
 import { ArrowUpRight } from "@lucide/vue";
 import { getCoverImage } from "@/constants/portfolio";
-import type { PortfolioWork } from "@/types/portfolio";
+import { PORTFOLIO_CATEGORIES, type PortfolioWork } from "@/types/portfolio";
 
-defineProps<{
+const props = defineProps<{
   works: PortfolioWork[];
   slug: string;
   isLoading: boolean;
 }>();
+
+const activeCategory = ref("All");
+
+// Only categories that actually have a piece, in a stable order.
+const categories = computed(() => PORTFOLIO_CATEGORIES.filter((c) => props.works.some((w) => w.category === c)));
+const counts = computed(() =>
+  Object.fromEntries(categories.value.map((c) => [c, props.works.filter((w) => w.category === c).length])),
+);
+const visibleWorks = computed(() =>
+  activeCategory.value === "All" ? props.works : props.works.filter((w) => w.category === activeCategory.value),
+);
+
+// If the selected category disappears (works reload), fall back to everything.
+watch(categories, (list) => {
+  if (activeCategory.value !== "All" && !(list as readonly string[]).includes(activeCategory.value)) activeCategory.value = "All";
+});
 
 const coverUrl = (work: PortfolioWork) => getCoverImage(work)?.url ?? null;
 </script>

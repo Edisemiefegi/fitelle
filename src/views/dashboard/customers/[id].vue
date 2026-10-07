@@ -142,12 +142,7 @@
         </p>
       </div>
 
-      <textarea
-        v-model="notes"
-        rows="3"
-        placeholder="e.g. Prefers a slightly loose fit around the waist..."
-        class="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-      />
+      <FormTextarea v-model="notes" rows="3" placeholder="e.g. Prefers a slightly loose fit around the waist..." />
 
       <div class="flex justify-end">
         <Button
@@ -161,7 +156,7 @@
       </div>
     </Card>
 
-    <CustomerOders v-if="client" :customer-id="client.id" />
+    <CustomerOrders v-if="client" :customer-id="client.id" />
   </div>
 
   <div v-else class="py-20 text-center text-sm text-muted-foreground">
@@ -170,6 +165,8 @@
 </template>
 
 <script setup lang="ts">
+import { formatDate } from "@/lib";
+import FormTextarea from "@/components/base/FormTextarea.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { Edit, MessageCircleCheck, Pencil, Ruler } from "@lucide/vue";
@@ -183,7 +180,7 @@ import { useCustomerStore } from "@/stores/customer";
 import { resolveMeasurementFields } from "@/constants/measurements";
 import type { CustomerType, MeasurementField } from "@/types/customer";
 import { EMPTY_TEXT } from "@/constants";
-import CustomerOders from "@/components/customer/customerOders.vue";
+import CustomerOrders from "@/components/customer/CustomerOrders.vue";
 import OrderFormModal from "@/components/orders/OrderFormModal.vue";
 
 const route = useRoute();
@@ -272,11 +269,4 @@ async function saveNotes() {
   }
 }
 
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 </script>

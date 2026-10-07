@@ -10,20 +10,7 @@
   >
     <div class="space-y-4">
       <Field required label="Amount" :error="errors.amount">
-        <div class="relative">
-          <span
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
-            >₦</span
-          >
-          <input
-            v-model.number="amount"
-            type="number"
-            min="0"
-            :max="order.balance"
-            placeholder="0.00"
-            class="h-11 w-full rounded-xl border border-border bg-background pl-8 pr-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-          />
-        </div>
+        <MoneyInput v-model="amount" :max="order.balance" />
       </Field>
 
       <div class="space-y-1">
@@ -33,12 +20,7 @@
             >(optional)</span
           ></label
         >
-        <input
-          v-model="note"
-          type="text"
-          placeholder="e.g. Balance on fitting day"
-          class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-        />
+        <FormInput v-model="note" placeholder="e.g. Balance on fitting day" />
       </div>
     </div>
   </Modal>
@@ -48,6 +30,8 @@
 import { ref } from "vue";
 import Modal from "@/components/base/Modal.vue";
 import Field from "@/components/base/Field.vue";
+import FormInput from "@/components/base/FormInput.vue";
+import MoneyInput from "@/components/base/MoneyInput.vue";
 import { createPaymentSchema } from "@/schema/order";
 import { formatCurrency } from "@/lib";
 import { useOrderStore } from "@/stores/order";

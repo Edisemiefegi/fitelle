@@ -24,13 +24,7 @@
     </div>
 
     <div class="flex gap-2">
-      <input
-        v-model="newRequirement"
-        type="text"
-        placeholder="Add a requirement..."
-        class="h-10 flex-1 rounded-xl border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-        @keydown.enter.prevent="submit"
-      />
+      <FormInput v-model="newRequirement" placeholder="Add a requirement..." class="h-10 flex-1" @keydown.enter.prevent="submit" />
       <Button type="button" variant="outline" size="icon" @click="submit">
         <Plus class="size-4" />
       </Button>
@@ -39,6 +33,7 @@
 </template>
 
 <script setup lang="ts">
+import FormInput from "@/components/base/FormInput.vue";
 import { ref } from "vue";
 import { Plus, Trash2 } from "@lucide/vue";
 import Button from "@/components/ui/button/Button.vue";

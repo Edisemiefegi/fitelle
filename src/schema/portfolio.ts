@@ -21,6 +21,7 @@ export const brandSchema = z.object({
   image: z
     .object({ fileId: z.string(), url: z.string(), uploadedAt: z.string() })
     .nullable(),
+  heroWorkId: z.string().nullable(),
 });
 
 export const servicesSchema = z.object({

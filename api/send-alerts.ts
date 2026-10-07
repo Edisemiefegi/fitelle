@@ -1,6 +1,5 @@
-import { cert, getApps, initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
+import { getDb } from "./_firebase.js";
 import { attentionHeadline, getAttentionItems, type AttentionOrder } from "../src/lib/attention.js";
 
 /**
@@ -20,13 +19,6 @@ const STALE_TOKEN_ERRORS = ["messaging/registration-token-not-registered", "mess
 const LAGOS_UTC_OFFSET_HOURS = 1; // Africa/Lagos has no daylight saving
 const FIRST_HOUR = 7; // local hours in which pushes may be sent: 07:00 up to (not including) 21:00
 const LAST_HOUR = 21;
-
-function getDb() {
-  if (!getApps().length) {
-    initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT as string)) });
-  }
-  return getFirestore();
-}
 
 export async function GET(request: Request): Promise<Response> {
   if (!process.env.CRON_SECRET || request.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {

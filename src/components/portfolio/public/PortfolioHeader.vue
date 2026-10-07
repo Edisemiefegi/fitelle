@@ -31,18 +31,12 @@
 </template>
 
 <script setup lang="ts">
+import { getInitials } from "@/lib";
 import { computed } from "vue";
 import { ArrowUpRight } from "@lucide/vue";
 import type { Portfolio } from "@/types/portfolio";
 
 const props = defineProps<{ portfolio: Portfolio }>();
 
-const initials = computed(() =>
-  props.portfolio.brandName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0].toUpperCase())
-    .join(""),
-);
+const initials = computed(() => getInitials(props.portfolio.brandName));
 </script>

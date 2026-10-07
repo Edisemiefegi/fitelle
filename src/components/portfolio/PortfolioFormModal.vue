@@ -29,12 +29,7 @@
         <SectionLabel title="Details" description="What is this piece, and what makes it special?" />
 
         <Field required label="Title" :error="errors.title">
-          <input
-            v-model="form.title"
-            type="text"
-            placeholder="e.g. Emerald silk aso-ebi gown"
-            class="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-          />
+          <FormInput v-model="form.title" placeholder="e.g. Emerald silk aso-ebi gown" />
         </Field>
 
         <Field label="Category">
@@ -44,32 +39,17 @@
         <div class="grid gap-4 sm:grid-cols-2">
           <div class="space-y-2">
             <label class="text-sm font-medium">Fabric <span class="font-normal text-muted-foreground">(optional)</span></label>
-            <input
-              v-model="form.fabric"
-              type="text"
-              placeholder="e.g. Silk organza"
-              class="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-            />
+            <FormInput v-model="form.fabric" placeholder="e.g. Silk organza" />
           </div>
           <div class="space-y-2">
             <label class="text-sm font-medium">Occasion <span class="font-normal text-muted-foreground">(optional)</span></label>
-            <input
-              v-model="form.occasion"
-              type="text"
-              placeholder="e.g. Bridal, owambe"
-              class="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-            />
+            <FormInput v-model="form.occasion" placeholder="e.g. Bridal, owambe" />
           </div>
         </div>
 
         <div class="space-y-2">
           <label class="text-sm font-medium">Description <span class="font-normal text-muted-foreground">(optional)</span></label>
-          <textarea
-            v-model="form.description"
-            rows="3"
-            placeholder="A line or two about the design, technique or story behind it..."
-            class="w-full resize-none rounded-xl border border-border bg-background px-3 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/10"
-          />
+          <FormTextarea v-model="form.description" rows="3" placeholder="A line or two about the design, technique or story behind it..." />
         </div>
 
         <TagsInput v-model="form.tags" />
@@ -83,6 +63,8 @@
 </template>
 
 <script setup lang="ts">
+import FormTextarea from "@/components/base/FormTextarea.vue";
+import FormInput from "@/components/base/FormInput.vue";
 import { ref, watch } from "vue";
 import Modal from "@/components/base/Modal.vue";
 import Field from "@/components/base/Field.vue";

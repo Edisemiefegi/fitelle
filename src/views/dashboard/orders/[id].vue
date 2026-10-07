@@ -63,18 +63,7 @@
         <Scissors class="size-4" /> Design reference
       </p>
 
-      <div
-        v-if="order.referenceImages.length"
-        class="grid grid-cols-3 gap-2 sm:grid-cols-4"
-      >
-        <img
-          v-for="img in order.referenceImages"
-          :key="img.fileId"
-          :src="img.url"
-          class="aspect-square w-full rounded-md object-cover"
-          alt=""
-        />
-      </div>
+      <ImageStrip v-if="referenceImages.length" :images="referenceImages" />
       <div
         v-else
         class="rounded-md h-32 w-full bg-muted flex items-center justify-center"
@@ -302,6 +291,8 @@
 </template>
 
 <script setup lang="ts">
+import { useClipboard } from "@vueuse/core";
+import ImageStrip from "@/components/base/ImageStrip.vue";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
@@ -335,6 +326,9 @@ const orderStore = useOrderStore();
 
 const id = route.params.id as string;
 const order = computed(() => orderStore.getOrderById(id));
+const referenceImages = computed(() =>
+  (order.value?.referenceImages ?? []).map((img) => ({ url: img.url, alt: "Design reference" })),
+);
 
 onMounted(async () => {
   if (!orderStore.orders.length) {
@@ -346,7 +340,7 @@ const editModalOpen = ref(false);
 const deleteDialogOpen = ref(false);
 const paymentDialogOpen = ref(false);
 const statusSheetOpen = ref(false);
-const copied = ref(false);
+const { copy, copied } = useClipboard({ copiedDuring: 1500 });
 const isDeleting = ref(false);
 
 const currentStepIndex = computed(() =>
@@ -381,11 +375,7 @@ function openTrackingLink() {
   window.open(trackingUrl.value, "_blank");
 }
 
-async function copyLink() {
-  await navigator.clipboard.writeText(trackingUrl.value);
-  copied.value = true;
-  setTimeout(() => (copied.value = false), 1500);
-}
+const copyLink = () => copy(trackingUrl.value);
 
 async function handleDelete(order: OrderType) {
   if (isDeleting.value) return;

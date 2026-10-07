@@ -20,12 +20,26 @@ export function formatCurrency(amount: number): string {
   return `₦${new Intl.NumberFormat("en-NG").format(amount)}`;
 }
 
+export function getInitials(name: string, max = 2): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, max)
+    .map((part) => part[0].toUpperCase())
+    .join("");
+}
+
 export function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-NG", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
+}
+
+/** Public link to one piece on a portfolio; shared in WhatsApp enquiries so the designer sees exactly which piece. */
+export function portfolioWorkUrl(slug: string, workId: string, origin = window.location.origin): string {
+  return `${origin}/portfolio/${slug}/${workId}`;
 }
 
 export function slugify(text: string): string {

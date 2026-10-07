@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { toRef, watch } from "vue";
+import Pagination from "@/components/base/Pagination.vue";
+import { usePagination } from "@/composables/usePagination";
 
 export interface TableColumn {
   key: string;
@@ -12,12 +15,22 @@ const emit = defineEmits<{
 }>();
 
 
-defineProps<{
-  columns: TableColumn[];
-  rows: any[];
-  loading?: boolean;
-  emptyMessage?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    columns: TableColumn[];
+    rows: any[];
+    loading?: boolean;
+    emptyMessage?: string;
+    pageSize?: number;
+    /** When this changes (e.g. the search text) the table goes back to page 1. */
+    resetKey?: unknown;
+  }>(),
+  { pageSize: 10 },
+);
+
+const rowsRef = toRef(props, "rows");
+const { page, pageItems, reset } = usePagination(rowsRef, props.pageSize);
+watch(() => props.resetKey, reset);
 </script>
 
 <template>
@@ -70,7 +83,7 @@ defineProps<{
         <tbody v-else>
           <tr
           @click="emit('row-click', row)"
-            v-for="row in rows"
+            v-for="row in pageItems"
             :key="row.id"
             class="border-b border-border last:border-0 transition-colors hover:bg-muted/30"
           >
@@ -93,6 +106,10 @@ defineProps<{
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div v-if="rows.length" class="border-t border-border p-3">
+      <Pagination v-model="page" :total="rows.length" :page-size="pageSize" />
     </div>
   </div>
 </template>

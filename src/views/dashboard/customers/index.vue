@@ -32,6 +32,7 @@
       :columns="customerColumns"
       :rows="filteredCustomers"
       :loading="isLoading"
+      :reset-key="debouncedQuery"
       empty-message="No customers found."
       @row-click="goToCustomer"
     >

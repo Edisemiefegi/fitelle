@@ -26,6 +26,36 @@
         </div>
       </Field>
 
+      <Field label="Hero piece" description="The piece shown full-screen at the top of your public page. Pick from your published works.">
+        <div v-if="publishedWorks.length" class="grid grid-cols-3 gap-2 sm:grid-cols-5">
+          <button
+            type="button"
+            class="flex aspect-[6/5] flex-col items-center justify-center rounded-xl border p-2 text-center text-[11px] transition"
+            :class="!form.heroWorkId ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'"
+            @click="form.heroWorkId = null"
+          >
+            Latest
+            <span class="mt-0.5 text-[10px] opacity-70">automatic</span>
+          </button>
+
+          <button
+            v-for="work in publishedWorks"
+            :key="work.id"
+            type="button"
+            class="relative aspect-[6/5] overflow-hidden rounded-xl border-2 bg-muted transition"
+            :class="form.heroWorkId === work.id ? 'border-primary' : 'border-transparent hover:border-primary/40'"
+            :title="work.title"
+            @click="form.heroWorkId = work.id"
+          >
+            <img v-if="getCoverImage(work)" :src="getCoverImage(work)!.url" :alt="work.title" class="h-full w-full object-cover" loading="lazy" />
+            <span v-if="form.heroWorkId === work.id" class="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Check class="size-3" />
+            </span>
+          </button>
+        </div>
+        <p v-else class="text-xs text-muted-foreground">Publish a work in the Designs tab, then choose it here.</p>
+      </Field>
+
       <div class="grid gap-5 md:grid-cols-2">
         <Field required label="Brand name" :error="errors.brandName">
           <Input v-model="form.brandName" placeholder="e.g. Didi Stitches" />
@@ -41,21 +71,11 @@
       </Field>
 
       <Field label="About your business" :error="errors.about">
-        <textarea
-          v-model="form.about"
-          rows="4"
-          placeholder="Tell your customers a little about your business..."
-          class="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-        />
+        <FormTextarea v-model="form.about" rows="4" placeholder="Tell your customers a little about your business..." />
       </Field>
 
       <Field label="About the designer (optional)" :error="errors.designerBio">
-        <textarea
-          v-model="form.designerBio"
-          rows="4"
-          placeholder="Who's behind the brand?"
-          class="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-        />
+        <FormTextarea v-model="form.designerBio" rows="4" placeholder="Who's behind the brand?" />
       </Field>
 
       <div class="flex justify-end">
@@ -66,15 +86,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import FormTextarea from "@/components/base/FormTextarea.vue";
+import { computed, ref } from "vue";
 import { toast } from "vue-sonner";
-import { ImagePlus } from "@lucide/vue";
+import { Check, ImagePlus } from "@lucide/vue";
 import Card from "@/components/base/Card.vue";
 import Field from "@/components/base/Field.vue";
 import Button from "@/components/ui/button/Button.vue";
 import Input from "@/components/ui/input/Input.vue";
 import { usePortfolioSection } from "@/composables/usePortfolioSection";
 import { brandSchema } from "@/schema/portfolio";
+import { getCoverImage } from "@/constants/portfolio";
+import { usePortfolioStore } from "@/stores/portfolio";
 import { deleteImageFile, uploadImageFile } from "@/service/appwrite";
 
 const MAX_SIZE = 5 * 1024 * 1024;
@@ -87,9 +110,12 @@ const { form, errors, isSaving, save } = usePortfolioSection(
     about: p.about,
     designerBio: p.designerBio,
     image: p.image,
+    heroWorkId: p.heroWorkId ?? null,
   }),
   brandSchema,
 );
+
+const publishedWorks = computed(() => usePortfolioStore().works.filter((w) => w.status === "published"));
 
 const fileInput = ref<HTMLInputElement>();
 const isUploading = ref(false);

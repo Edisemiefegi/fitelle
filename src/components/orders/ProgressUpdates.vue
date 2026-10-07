@@ -23,7 +23,7 @@
 
       <div class="grid grid-cols-4 gap-2 sm:grid-cols-5">
         <div v-for="item in upload.items.value" :key="item.localId" class="group relative aspect-square overflow-hidden rounded-lg border border-border bg-muted">
-          <img :src="item.previewUrl" alt="" class="h-full w-full object-cover" />
+          <img :src="item.previewUrl" alt="" class="h-full w-full  object-cover" />
           <div v-if="item.status === 'uploading'" class="absolute inset-0 flex items-center justify-center bg-black/40">
             <Loader2 class="size-4 animate-spin text-white" />
           </div>
@@ -84,11 +84,7 @@
 
         <p v-if="update.note" class="mt-1.5 text-sm">{{ update.note }}</p>
 
-        <div v-if="update.images.length" class="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-5">
-          <a v-for="img in update.images" :key="img.fileId" :href="img.url" target="_blank" rel="noopener" class="aspect-square overflow-hidden rounded-lg bg-muted">
-            <img :src="img.url" alt="Progress photo" class="h-full w-full object-cover" loading="lazy" />
-          </a>
-        </div>
+        <ImageStrip v-if="update.images.length"  class="mt-2" :images="update.images.map((img) => ({ url: img.url, alt: 'Progress photo' }))" />
       </li>
     </ul>
     <p v-else-if="!composing" class="mt-4 text-xs text-muted-foreground">No updates yet.</p>
@@ -96,6 +92,7 @@
 </template>
 
 <script setup lang="ts">
+import ImageStrip from "@/components/base/ImageStrip.vue";
 import { computed, ref } from "vue";
 import { Camera, Eye, EyeOff, Loader2, Plus, Trash2, X } from "@lucide/vue";
 import Button from "@/components/ui/button/Button.vue";

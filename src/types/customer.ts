@@ -7,22 +7,6 @@ export interface MeasurementField {
   isCustom?: boolean;
 }
 
-export interface MeasurementForm {
-  bust: number | null;
-  waist: number | null;
-  hips: number | null;
-  shoulder: number | null;
-  sleeve: number | null;
-  armhole: number | null;
-  neck: number | null;
-  blouseLength: number | null;
-  skirtLength: number | null;
-  trouserLength: number | null;
-  thigh: number | null;
-  knee: number | null;
-  ankle: number | null;
-}
-
 export type Unit = "in" | "cm";
 
 export type CustomerType = {
