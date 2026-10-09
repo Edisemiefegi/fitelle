@@ -11,7 +11,7 @@
     >
       <DialogHeader
         v-if="title || description"
-        class="sticky top-0 z-20 shrink-0 border-b bg-background px-6 py-4"
+        class="sticky top-0 z-20 shrink-0 border-b bg-background px-6 xs:pt-4 pt-8 pb-4"
       >
         <DialogTitle v-if="title">
           {{ title }}
@@ -35,7 +35,7 @@
         <slot />
       </div>
 
-      <DialogFooter show-close-button>
+      <DialogFooter show-close-button class="pb-12">
         <Button
           class=""
           :loading="isLoading"
