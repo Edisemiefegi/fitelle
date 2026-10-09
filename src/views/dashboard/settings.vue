@@ -34,8 +34,10 @@
       </form>
     </Card>
 
+
     <PushCard />
     <InstallAppCard />
+    <Support/>
     <Button @click="logout">Logout</Button>
   </main>
 
@@ -56,6 +58,7 @@ import Input from "@/components/ui/input/Input.vue";
 import PushCard from "@/components/settings/PushCard.vue";
 import InstallAppCard from "@/components/settings/InstallAppCard.vue";
 import { useAuthStore } from "@/stores/auth";
+import Support from "@/components/settings/Support.vue";
 
 const authStore = useAuthStore();
 
@@ -63,6 +66,8 @@ const form = reactive({
   brandName: "",
   phoneNumber: "",
 });
+
+
 
 function fillFromUser() {
   const user = authStore.currentUser;
