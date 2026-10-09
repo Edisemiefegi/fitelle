@@ -8,8 +8,16 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
+  query,
+  where,
 } from "@/service/firebase";
-import type { OrderType, ProductionStatus, OrderImage, OrderRequirement, ProgressUpdate } from "@/types/order";
+import type {
+  OrderType,
+  ProductionStatus,
+  OrderImage,
+  OrderRequirement,
+  ProgressUpdate,
+} from "@/types/order";
 import type { OrderSchemaType } from "@/schema/order";
 import { derivePaymentStatus } from "@/constants/orders";
 import { generateId } from "@/lib";
@@ -40,15 +48,26 @@ export const useOrderStore = defineStore("order", {
         state.orders.filter((order) => order.customerId === customerId),
 
     totalOrders: (state) => state.orders.length,
-    
   },
 
   actions: {
     async fetchOrders() {
+      const userId = useAuthStore().currentUser?.id;
+
+      if (!userId) {
+        this.orders = [];
+        return;
+      }
+
       this.isLoading = true;
       this.error = null;
       try {
-        const snapshot = await getDocs(collection(db, "orders"));
+        const ordersRef = query(
+          collection(db, "orders"),
+          where("userId", "==", userId),
+        );
+
+        const snapshot = await getDocs(ordersRef);
         this.orders = snapshot.docs
           .map(
             (docSnap: any) =>
@@ -131,7 +150,11 @@ export const useOrderStore = defineStore("order", {
     },
 
     /** @param successMessage shown as a toast; pass null for small inline edits (ticking a box, etc.) */
-    async updateOrder(id: string, updates: Partial<OrderType>, successMessage: string | null = "Order updated") {
+    async updateOrder(
+      id: string,
+      updates: Partial<OrderType>,
+      successMessage: string | null = "Order updated",
+    ) {
       try {
         const ref = doc(db, "orders", id);
         const payload = { ...updates, updatedAt: new Date().toISOString() };
@@ -165,7 +188,9 @@ export const useOrderStore = defineStore("order", {
 
       if (order) {
         const { deleteImageFile } = await import("@/service/appwrite.ts");
-        const progressImages = (order.progressUpdates ?? []).flatMap((u) => u.images);
+        const progressImages = (order.progressUpdates ?? []).flatMap(
+          (u) => u.images,
+        );
         for (const img of [...order.referenceImages, ...progressImages]) {
           deleteImageFile(img.fileId).catch(() => {});
         }
@@ -186,30 +211,61 @@ export const useOrderStore = defineStore("order", {
       }
     },
 
-    async addProgressUpdate(id: string, update: Pick<ProgressUpdate, "note" | "images" | "visibleToCustomer">) {
+    async addProgressUpdate(
+      id: string,
+      update: Pick<ProgressUpdate, "note" | "images" | "visibleToCustomer">,
+    ) {
       const order = this.getOrderById(id);
       if (!order) return;
-      const entry: ProgressUpdate = { id: generateId("upd"), createdAt: new Date().toISOString(), ...update };
-      await this.updateOrder(id, { progressUpdates: [entry, ...(order.progressUpdates ?? [])] }, "Progress update added");
+      const entry: ProgressUpdate = {
+        id: generateId("upd"),
+        createdAt: new Date().toISOString(),
+        ...update,
+      };
+      await this.updateOrder(
+        id,
+        { progressUpdates: [entry, ...(order.progressUpdates ?? [])] },
+        "Progress update added",
+      );
     },
 
-    async setProgressUpdateVisibility(id: string, updateId: string, visible: boolean) {
+    async setProgressUpdateVisibility(
+      id: string,
+      updateId: string,
+      visible: boolean,
+    ) {
       const order = this.getOrderById(id);
       if (!order) return;
       const progressUpdates = (order.progressUpdates ?? []).map((u) =>
         u.id === updateId ? { ...u, visibleToCustomer: visible } : u,
       );
-      await this.updateOrder(id, { progressUpdates }, visible ? "Now visible on the tracking link" : "Hidden from the tracking link");
+      await this.updateOrder(
+        id,
+        { progressUpdates },
+        visible
+          ? "Now visible on the tracking link"
+          : "Hidden from the tracking link",
+      );
     },
 
     async removeProgressUpdate(id: string, updateId: string) {
       const order = this.getOrderById(id);
       const removed = order?.progressUpdates?.find((u) => u.id === updateId);
       if (!order || !removed) return;
-      await this.updateOrder(id, { progressUpdates: order.progressUpdates!.filter((u) => u.id !== updateId) }, "Update removed");
+      await this.updateOrder(
+        id,
+        {
+          progressUpdates: order.progressUpdates!.filter(
+            (u) => u.id !== updateId,
+          ),
+        },
+        "Update removed",
+      );
 
       const { deleteImageFile } = await import("@/service/appwrite.ts");
-      removed.images.forEach((img) => deleteImageFile(img.fileId).catch(() => {}));
+      removed.images.forEach((img) =>
+        deleteImageFile(img.fileId).catch(() => {}),
+      );
     },
 
     async updateStatus(id: string, status: ProductionStatus) {

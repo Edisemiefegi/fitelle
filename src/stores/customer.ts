@@ -9,6 +9,8 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
+  query,
+  where,
 } from "@/service/firebase";
 import type { CustomerType, MeasurementField } from "@/types/customer";
 import type { CustomerSchemaType } from "@/schema";
@@ -56,7 +58,9 @@ export const useCustomerStore = defineStore("customer", {
           ...customer,
           measurements: customer.measurements ?? createEmptyMeasurements(),
           customFields: customer.customFields ?? [],
-          ...(useAuthStore().currentUser?.id && { userId: useAuthStore().currentUser!.id }),
+          ...(useAuthStore().currentUser?.id && {
+            userId: useAuthStore().currentUser!.id,
+          }),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -118,10 +122,21 @@ export const useCustomerStore = defineStore("customer", {
     },
 
     async fetchCustomers() {
+      const userId = useAuthStore().currentUser?.id;
+
+      if (!userId) {
+        this.customers = [];
+        return;
+      }
       this.isLoading = true;
       this.error = null;
       try {
-        const snapshot = await getDocs(collection(db, "customers"));
+        const customersRef = query(
+          collection(db, "customers"),
+          where("userId", "==", userId),
+        );
+
+        const snapshot = await getDocs(customersRef);
         this.customers = snapshot.docs.map(
           (docSnap: any) =>
             ({ ...docSnap.data(), id: docSnap.id }) as CustomerType,

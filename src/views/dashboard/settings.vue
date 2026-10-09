@@ -7,7 +7,10 @@
     />
 
     <!-- Business Profile -->
-    <Card title="Business profile" description="Basic information about your fashion business.">
+    <Card
+      title="Business profile"
+      description="Basic information about your fashion business."
+    >
       <form class="space-y-5" @submit.prevent="handleSave">
         <div class="grid gap-5 md:grid-cols-2">
           <!-- Business name -->
@@ -33,6 +36,7 @@
 
     <PushCard />
     <InstallAppCard />
+    <Button @click="logout">Logout</Button>
   </main>
 
   <main v-else class="space-y-3">
@@ -72,6 +76,11 @@ function fillFromUser() {
 fillFromUser();
 watch(() => authStore.currentUser, fillFromUser);
 
+const logout = async () => {
+  await authStore.logout();
+
+  toast.success("Logged out");
+};
 async function handleSave() {
   try {
     await authStore.updateProfile({ ...form });
