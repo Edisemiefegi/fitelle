@@ -2,10 +2,11 @@
   <Dialog :open="open" @update:open="emit('update:open', $event)">
     <DialogContent
       :class="[
-        'flex max-w-lg flex-col overflow-hidden p-0 max-h-3/4',
+        'flex w-full max-w-lg flex-col overflow-hidden p-0',
+        'max-h-[90dvh]',
         fullScreenMobile &&
-          'h-screen w-screen max-sm:max-h-none max-sm:max-w-none max-sm:rounded-none',
-        fullScreen && 'h-screen w-screen max-w-none rounded-none',
+          'max-sm:inset-0 max-sm:h-[100dvh] max-sm:w-full max-sm:max-h-[100dvh] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none',
+        fullScreen && 'h-[100dvh] w-full max-h-none max-w-none rounded-none',
         contentClass,
       ]"
     >
@@ -31,11 +32,14 @@
         </DialogClose>
       </DialogHeader>
 
-      <div class="min-h-0 flex-1 overflow-y-auto px-6">
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6">
         <slot />
       </div>
 
-      <DialogFooter show-close-button class="pb-12">
+      <DialogFooter
+        show-close-button
+        class="shrink-0 border-t bg-background px-6 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      >
         <Button
           class=""
           :loading="isLoading"
