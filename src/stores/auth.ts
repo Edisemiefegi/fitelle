@@ -10,6 +10,7 @@ import {
   signInWithEmailAndPassword,
   getDoc,
   signOut,
+  sendPasswordResetEmail,
 } from "@/service/firebase";
 import type { AuthSchemaType } from "@/schema";
 import { usePortfolioStore } from "@/stores/portfolio";
@@ -19,6 +20,8 @@ const AUTH_ERRORS: Record<string, string> = {
   "auth/wrong-password": "Incorrect email or password.",
   "auth/user-not-found": "Incorrect email or password.",
   "auth/email-already-in-use": "An account with this email already exists.",
+  "auth/invalid-email": "Enter a valid email address.",
+  "auth/missing-email": "Enter your email address first.",
   "auth/weak-password": "Choose a stronger password.",
   "auth/too-many-requests": "Too many attempts. Please wait a moment and try again.",
   "auth/network-request-failed": "Network error. Check your connection and try again.",
@@ -116,7 +119,17 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-    async forgotPassword() {},
+    async forgotPassword(email: string) {
+      try {
+        await sendPasswordResetEmail(auth, email);
+        // Same wording whether or not the account exists, so emails can't be probed.
+        toast.success("If an account exists for that email, a reset link is on its way.");
+      } catch (error) {
+        console.error("Error sending password reset email:", error);
+        toast.error(authErrorMessage(error, "Couldn't send the reset link. Try again."));
+        throw error;
+      }
+    },
   },
 
   persist: true,

@@ -13,7 +13,7 @@
         <Input v-model="form.email" type="email" placeholder="you@studio.com" />
       </Field>
       <Field label="Password" required :error="errors.password?.[0]">
-        <Input v-model="form.password" type="password" placeholder="••••••••" />
+        <PasswordInput v-model="form.password" placeholder="••••••••" autocomplete="new-password" />
       </Field>
       <Button :loading="isLoading" type="submit" class="w-full"
         >Create account</Button
@@ -26,6 +26,7 @@
 import Button from "@/components/ui/button/Button.vue";
 import Input from "@/components/ui/input/Input.vue";
 import Field from "@/components/base/Field.vue";
+import PasswordInput from "@/components/base/PasswordInput.vue";
 import AuthLayout from "@/layouts/AuthLayout.vue";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";

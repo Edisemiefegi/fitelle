@@ -9,9 +9,17 @@
         <Input v-model="form.email" type="email" placeholder="you@studio.com" />
       </Field>
       <Field label="Password" required :error="errors.password?.[0]">
-        <Input v-model="form.password" type="password" placeholder="••••••••" />
+        <PasswordInput v-model="form.password" placeholder="••••••••" autocomplete="current-password" />
         <div class="text-end">
-          <Button class="text-xs" variant="link">Forgot password?</Button>
+          <Button
+            type="button"
+            class="text-xs"
+            variant="link"
+            :disabled="isSendingReset"
+            @click="handleForgotPassword"
+          >
+            {{ isSendingReset ? "Sending reset link..." : "Forgot password?" }}
+          </Button>
         </div>
       </Field>
 
@@ -24,6 +32,7 @@
 import Button from "@/components/ui/button/Button.vue";
 import Input from "@/components/ui/input/Input.vue";
 import Field from "@/components/base/Field.vue";
+import PasswordInput from "@/components/base/PasswordInput.vue";
 import AuthLayout from "@/layouts/AuthLayout.vue";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
@@ -35,10 +44,11 @@ const form = ref({
   password: "",
 });
 const isLoading = ref(false);
+const isSendingReset = ref(false);
 const errors = ref<Record<string, string[]>>({});
 const router = useRouter();
 
-const { loginFunc } = useAuthStore();
+const { loginFunc, forgotPassword } = useAuthStore();
 
 const handleLogin = async () => {
   errors.value = {};
@@ -56,6 +66,25 @@ const handleLogin = async () => {
     // the auth store already showed the error toast
   } finally {
     isLoading.value = false;
+  }
+};
+
+// Uses the email already typed above — no separate screen needed.
+const handleForgotPassword = async () => {
+  errors.value = {};
+  const result = authSchema(false).shape.email.safeParse(form.value.email.trim());
+  if (!result.success) {
+    errors.value = { email: ["Enter your email above, then tap “Forgot password?”"] };
+    return;
+  }
+
+  try {
+    isSendingReset.value = true;
+    await forgotPassword(result.data);
+  } catch {
+    // the auth store already showed the error toast
+  } finally {
+    isSendingReset.value = false;
   }
 };
 </script>
