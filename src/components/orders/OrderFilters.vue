@@ -1,32 +1,47 @@
 <template>
   <div class="space-y-2">
-    <div class="flex items-start justify-between gap-2">
-      <div class="grid flex-1 grid-cols-2 gap-2 md:grid-cols-4">
+    <!-- Status + payment, with export alongside -->
+    <div class="flex items-stretch gap-2">
+      <div class="grid min-w-0 flex-1 grid-cols-2 gap-2">
         <Select v-model="filters.status" :options="ORDER_STATUS_OPTIONS" placeholder="Order status" class="w-full" />
         <Select v-model="filters.paymentStatus" :options="PAYMENT_STATUS_OPTIONS" placeholder="Payment status" class="w-full" />
-        <Select v-model="filters.dateField" :options="DATE_FIELD_OPTIONS" placeholder="Filter by date" class="w-full" />
       </div>
 
-      <Button variant="outline" size="sm" class="shrink-0" @click="emit('export')">
+      <Button variant="outline" size="sm" class="h-auto shrink-0" aria-label="Export orders" @click="emit('export')">
         <Download class="size-4" />
         <span class="hidden sm:inline">Export</span>
       </Button>
     </div>
 
-    <div class="flex flex-wrap items-center gap-2">
-      <label class="flex items-center gap-2 text-xs text-muted-foreground">
-        From
-        <DatePicker v-model="filters.dateFrom" :max="filters.dateTo" placeholder="Any date" class="h-9 w-44 text-xs" />
-      </label>
-      <label class="flex items-center gap-2 text-xs text-muted-foreground">
-        To
-        <DatePicker v-model="filters.dateTo" :min="filters.dateFrom" placeholder="Any date" class="h-9 w-44 text-xs" />
-      </label>
+    <!-- Date range: which date, then from → to -->
+    <div class="rounded-xl border border-border bg-white/70 p-2.5">
+      <div class="grid grid-cols-2 gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
+        <div class="col-span-2 md:col-span-1">
+          <p class="mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Date range by</p>
+          <Select v-model="filters.dateField" :options="DATE_FIELD_OPTIONS" placeholder="Filter by date" class="w-full" />
+        </div>
 
-      <Button v-if="isActive" variant="ghost" size="sm" @click="emit('reset')">
-        <X class="size-3.5" />
-        Clear filters
-      </Button>
+        <label class="block min-w-0">
+          <span class="mb-1 block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">From</span>
+          <DatePicker v-model="filters.dateFrom" :max="filters.dateTo" placeholder="Any date" class="h-9 w-full text-xs" />
+        </label>
+
+        <label class="block min-w-0">
+          <span class="mb-1 block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">To</span>
+          <DatePicker v-model="filters.dateTo" :min="filters.dateFrom" placeholder="Any date" class="h-9 w-full text-xs" />
+        </label>
+
+        <Button
+          v-if="isActive"
+          variant="ghost"
+          size="sm"
+          class="col-span-2 justify-self-end md:col-span-1"
+          @click="emit('reset')"
+        >
+          <X class="size-3.5" />
+          Clear filters
+        </Button>
+      </div>
     </div>
   </div>
 </template>

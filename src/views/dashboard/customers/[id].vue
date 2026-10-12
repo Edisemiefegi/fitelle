@@ -1,9 +1,9 @@
 <template>
   <div v-if="client" class="space-y-6">
     <Header
-      :title="client.name"
+      title=""
+      subtitle=""
       text="Client Profile"
-      :subtitle="client.phone"
       button="New order"
       back
       @button-click="orderModalOpen = true"
@@ -19,6 +19,42 @@
       </Button>
     </Header>
 
+    <!-- Profile -->
+    <div>
+      <div class="flex items-center gap-4">
+        <div
+          class="flex size-[74px] shrink-0 items-center justify-center rounded-full bg-butter font-display text-[28px]"
+        >
+          {{ getInitials(client.name) }}
+        </div>
+
+        <div class="min-w-0">
+          <h1 class="truncate font-display text-3xl font-medium leading-tight">
+            {{ client.name }}
+          </h1>
+          <p class="mt-1 flex items-center gap-1.5 text-[15px] text-muted-foreground">
+            <Phone class="size-3.5" />
+            {{ client.phone }}
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-4 flex gap-2 text-[13.5px] font-medium">
+        <span
+          class="rounded-full px-3 py-1"
+          :class="client.unit === 'in' ? 'bg-ink text-white' : 'bg-white text-muted-foreground'"
+        >
+          Inches
+        </span>
+        <span
+          class="rounded-full px-3 py-1"
+          :class="client.unit === 'cm' ? 'bg-ink text-white' : 'bg-white text-muted-foreground'"
+        >
+          Centimetres
+        </span>
+      </div>
+    </div>
+
     <OrderFormModal
       key="new"
       :open="orderModalOpen"
@@ -33,7 +69,7 @@
     />
 
     <Card
-      class="space-y-6"
+      class="space-y-6 bg-transparent! p-0! border-0! shadow-none!"
       title="Measurements"
       :description="`Last updated ${client.updatedAt ? formatDate(client.updatedAt) : EMPTY_TEXT}`"
     >
@@ -79,32 +115,43 @@
       </template>
 
       <template v-if="!editingMeasurements">
-        <div
-          v-if="hasMeasurements"
-          class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
-        >
-          <div
-            v-for="field in visibleFields"
-            :key="field.key"
-            class="rounded-xl border border-border bg-background p-4"
+        <div v-if="hasMeasurements" class="space-y-4">
+          <template
+            v-for="group in [
+              { label: 'Upper body', fields: visibleFields.filter((field) => field.category === 'upper') },
+              { label: 'Lower body', fields: visibleFields.filter((field) => field.category === 'lower') },
+              { label: 'Other', fields: visibleFields.filter((field) => field.category !== 'upper' && field.category !== 'lower') },
+            ]"
+            :key="group.label"
           >
-            <div class="mb-3 flex items-center justify-between">
-              <p class="text-sm font-medium">{{ field.label }}</p>
-              <span class="text-[10px] text-muted-foreground">{{
-                client.unit
-              }}</span>
-            </div>
-
-            <p class="text-xl font-semibold">
-              {{ client.measurements[field.key] ?? "—" }}
-              <span
-                v-if="client.measurements[field.key] != null"
-                class="text-xs font-normal text-muted-foreground"
+            <div v-if="group.fields.length">
+              <p
+                class="mb-2.5 text-[12.5px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
               >
-                {{ client.unit }}
-              </span>
-            </p>
-          </div>
+                {{ group.label }}
+              </p>
+
+              <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+                <div
+                  v-for="field in group.fields"
+                  :key="field.key"
+                  class="rounded-[14px] border border-border bg-background px-4 py-3"
+                >
+                  <p class="text-sm text-muted-foreground">{{ field.label }}</p>
+
+                  <p class="font-display text-3xl font-medium">
+                    {{ client.measurements[field.key] ?? "—" }}
+                    <span
+                      v-if="client.measurements[field.key] != null"
+                      class="font-sans text-[15px] font-normal text-muted-foreground"
+                    >
+                      {{ client.unit }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- Empty state -->
@@ -165,11 +212,11 @@
 </template>
 
 <script setup lang="ts">
-import { formatDate } from "@/lib";
+import { formatDate, getInitials } from "@/lib";
 import FormTextarea from "@/components/base/FormTextarea.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { Edit, MessageCircleCheck, Pencil, Ruler } from "@lucide/vue";
+import { Edit, MessageCircleCheck, Pencil, Phone, Ruler } from "@lucide/vue";
 
 import Card from "@/components/base/Card.vue";
 import Header from "@/components/base/Header.vue";

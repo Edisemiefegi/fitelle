@@ -1,21 +1,21 @@
 <template>
-  <main class="space-y-5">
+  <main class="space-y-5 relative">
     <NotificationBell />
 
-    <Header
-      :title="`${greeting}, ${authStore.currentUser?.brandName || 'there'}.`"
-      subtitle="Here is the shape of your atelier today."
-      button="New order"
-      text="Studio notes"
-      @button-click="orderModalOpen = true"
-    />
-
+    <div class="">
+      <Header
+        :title="`${greeting}, ${authStore.currentUser?.brandName || 'there'}.`"
+        subtitle="Here is the shape of your atelier today."
+        button="New order"
+        text="Studio notes"
+        @button-click="orderModalOpen = true"
+      />
+    </div>
     <OrderFormModal
       key="new"
       :open="orderModalOpen"
       @update:open="orderModalOpen = $event"
     />
-
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <Stats v-for="stat in stats" :key="stat.title" v-bind="stat" />

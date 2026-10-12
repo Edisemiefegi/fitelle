@@ -1,4 +1,19 @@
 {
   "version": 1,
-  "bugs": []
+  "bugs": [
+    {
+      "id": "bug-001",
+      "date": "2026-10-12",
+      "file": "../fitelle-video/remotion.config.ts",
+      "error_message": "A delayRender() \"Waiting for root component to load\" was called but not cleared after 28000ms (remotion still/render)",
+      "root_cause": "chrome-headless-shell never fires requestAnimationFrame on this Intel Mac (macOS 15.7), so Remotion's render entry never continues. Studio preview was unaffected; bundler and --gl flags made no difference.",
+      "fix": "Config.setChromeMode(\"chrome-for-testing\") in ../fitelle-video/remotion.config.ts (or pass --chrome-mode=chrome-for-testing).",
+      "tags": [
+        "remotion",
+        "render",
+        "video",
+        "chrome-headless-shell"
+      ]
+    }
+  ]
 }

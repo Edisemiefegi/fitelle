@@ -1,8 +1,9 @@
 <template>
+<Card>
 
     <div class="flex items-center justify-between gap-4">
       <div>
-        <h2 class="font-display text-lg font-semibold">
+        <h2 class="font-display text-lg font-medium">
           Order History
         </h2>
 
@@ -16,7 +17,8 @@
       <Button
         v-if="orders.length"
         size="sm"
-        variant="outline"
+        class="text-primary"
+        variant="ghost"
         @click="viewOrders"
       >
         View all
@@ -48,35 +50,42 @@
     </div>
 
     <!-- Orders -->
-    <div v-else class="space-y-2">
+    <div v-else class="space-y-4 pt-3">
       <button
         v-for="order in orders"
         :key="order.id"
         type="button"
-        class="flex w-full items-center justify-between gap-4 rounded-xl border border-border p-4 text-left transition hover:bg-muted/50"
+        class="flex w-full items-center gap-3.5 text-left transition hover:opacity-70"
         @click="viewOrder(order.id)"
       >
-        <div class="min-w-0">
-          <p class="font-medium truncate">
+        <div
+          class="flex h-[50px] w-[50px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-muted"
+        >
+          <img
+            v-if="order.referenceImages[0]?.url"
+            :src="order.referenceImages[0].url"
+            :alt="order.garmentType"
+            class="h-full w-full object-cover"
+          />
+          <ShoppingBag v-else class="size-5 text-muted-foreground" />
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-[17px] font-medium leading-tight">
             {{ order.garmentType }}
           </p>
 
-          <p class="mt-1 text-xs text-muted-foreground">
-            Ordered {{ (order.createdAt ? formatDate(order.createdAt) : "—") }}
+          <p class="mt-1 truncate text-sm text-muted-foreground">
+            {{ order.status }} · Ordered {{ (order.createdAt ? formatDate(order.createdAt) : "—") }}
           </p>
         </div>
 
-        <div class="shrink-0 text-right">
-          <p class="text-sm font-medium">
-            {{ formatCurrency(order.total) }}
-          </p>
-
-          <span class="text-xs text-muted-foreground">
-            {{ order.status }}
-          </span>
-        </div>
+        <p class="shrink-0 text-sm font-semibold">
+          {{ formatCurrency(order.total) }}
+        </p>
       </button>
     </div>
+</Card>
 
 </template>
 
@@ -85,6 +94,7 @@ import { formatCurrency, formatDate } from "@/lib";
 import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ShoppingBag } from "@lucide/vue";
+import Card from "@/components/base/Card.vue";
 
 import Button from "@/components/ui/button/Button.vue";
 import { useOrderStore } from "@/stores/order";

@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 ">
     <div v-for="group in groups" :key="group.category" class="space-y-3">
       <div class="flex items-center gap-2">
         <span class="h-1.5 w-1.5 rounded-full bg-primary" />

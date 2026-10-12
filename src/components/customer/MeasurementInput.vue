@@ -1,6 +1,6 @@
 <template>
-  <div class="group relative space-y-2">
-    <div class="flex items-center justify-between">
+  <div class="group relative space-y-2 ">
+    <div class="flex items-center justify-between ">
       <label class="text-xs font-medium text-muted-foreground">
         {{ label }}
       </label>
@@ -16,7 +16,7 @@
       </button>
     </div>
 
-    <div class="relative">
+    <div class="relative bg-white" >
       <Input
         :model-value="modelValue ?? ''"
         type="number"

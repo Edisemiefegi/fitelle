@@ -1,11 +1,11 @@
 <template>
   <div :class="['flex items-center  justify-between p-4 rounded-xl', bgClass]">
-    <div class="space-y-1">
+    <div class="space-y-0.5">
       <p class="text-gray-600 text-[10px]">
         {{ title }}
       </p>
 
-      <p class="sm:text-xl font-display font-medium">
+      <p class="text-xl font-display font-semibold">
         {{ amount }}
       </p>
 
